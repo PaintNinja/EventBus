@@ -15,7 +15,7 @@ version = gradleutils.tagOffsetVersion
 print("Version: $version")
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(16)
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
     modularity.inferModulePath = true
     withSourcesJar()
 }
@@ -26,12 +26,7 @@ repositories {
 }
 
 dependencies {
-    api(libs.typetools)
-    implementation(libs.log4j.api)
-    implementation(libs.bundles.asm)
-    compileOnly(libs.modlauncher)
-    compileOnly(libs.securemodules)
-    compileOnly(libs.nulls)
+
 }
 
 extraJavaModuleInfo {
@@ -65,7 +60,7 @@ publishing {
         from components.java
         artifactId = 'eventbus'
         pom {
-            name = 'Event Bus'
+            name = 'EventBus'
             description = 'High performance Event Bus library'
             url = 'https://github.com/MinecraftForge/EventBus'
 
@@ -74,8 +69,7 @@ publishing {
             license PomUtils.Licenses.LGPLv2_1
 
             developers {
-                developer PomUtils.Developers.LexManos
-                developer PomUtils.Developers.cpw
+                developer PomUtils.Developers.Paint_Ninja
             }
         }
     }
@@ -87,18 +81,16 @@ publishing {
 
 allprojects {
     ext.VALID_VMS = [
-        'Adoptium':  [16, 17, 18, 19, 20, 21],
-        'Amazon':    [16, 17, 18, 19, 20, 21],
-        'Azul':      (16..21),
-        'BellSoft':  (16..21),
-        'Graal_VM':  [16, 17,     19, 20, 21],
-        'IBM':       [16, 17, 18, 19, 20    ],
-        'Microsoft': [16, 17,             21],
-        'Oracle':    (16..21),
-        'SAP':       (16..20)
+        'Adoptium':  [21],
+        'Amazon':    [21],
+        'Azul':      (21),
+        'BellSoft':  (21),
+        'Graal_VM':  [21],
+        'Microsoft': [21],
+        'Oracle':    (21),
     ]
 
     // Tests are expensive to run all variants, so only run if asked to
     if (!project.hasProperty('bulk_tests'))
-        ext.VALID_VMS = ['Adoptium':  [17]]//, 18, 19, 20, 21] ]
+        ext.VALID_VMS = ['Adoptium':  [21]]
 }
