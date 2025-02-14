@@ -15,7 +15,8 @@ public sealed interface EventCharacteristic {
     non-sealed interface Cancellable extends EventCharacteristic {}
 
     /**
-     * A self-destructing event will dispose of its associated {@link EventBus} after it has been posted.
+     * A self-destructing event will dispose of its associated {@link EventBus} after it has been posted to free up
+     * resources, after which it cannot be posted to again.
      * <p>This is useful for single-use lifecycle events.</p>
      */
     non-sealed interface SelfDestructing extends EventCharacteristic {}
@@ -26,5 +27,19 @@ public sealed interface EventCharacteristic {
      * by returning unmodifiable views or throwing exceptions on mutation attempts when monitoring.</p>
      * <p>Only supported for {@link MutableEvent} at this time.</p>
      */
-    non-sealed interface MonitorAware extends EventCharacteristic {}
+    non-sealed interface MonitorAware extends EventCharacteristic {
+        default boolean isMonitoring() {
+            return ((MutableEvent<?>) this).isMonitoring;
+        }
+    }
+
+    /**
+     * Experimental feature - may be removed or renamed without notice.
+     * <p>All {@link EventBus}es support concurrent operation by default, but you can opt out of this thread-safety
+     * by using this characteristic if you know all event listeners are always registered and posted on the same
+     * thread.</p>
+     * <p>Warning: Incorrect usage of this characteristic may cause corruption, crashes and/or other unexpected
+     * behaviour - avoid using if unsure.</p>
+     */
+    non-sealed interface SingleThreaded extends EventCharacteristic {}
 }

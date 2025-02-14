@@ -5,6 +5,7 @@ import net.minecraftforge.eventbus.api.event.EventCharacteristic;
 import net.minecraftforge.eventbus.api.listener.EventListener;
 import net.minecraftforge.eventbus.api.listener.ObjBooleanBiConsumer;
 import net.minecraftforge.eventbus.api.listener.Priority;
+import net.minecraftforge.eventbus.internal.BusGroupImpl;
 import net.minecraftforge.eventbus.internal.CancellableEventBusImpl;
 
 import java.util.function.Consumer;
@@ -24,7 +25,7 @@ public sealed interface CancellableEventBus<T extends Event<T> & EventCharacteri
      * @see #addListener(Consumer) For adding a listener that never cancels the event
      */
     default EventListener addListener(boolean alwaysCancelling, Consumer<T> listener) {
-        return addListener(alwaysCancelling, Priority.NORMAL, listener);
+        return addListener(Priority.NORMAL, alwaysCancelling, listener);
     }
 
     /**
@@ -37,16 +38,14 @@ public sealed interface CancellableEventBus<T extends Event<T> & EventCharacteri
      * @return A reference that can be used to remove this listener later with {@link #removeListener(EventListener)}.
      * @see Priority For common priority values
      */
-    EventListener addListener(boolean alwaysCancelling, byte priority, Consumer<T> listener);
+    EventListener addListener(byte priority, boolean alwaysCancelling, Consumer<T> listener);
 
     /**
      * Adds a possibly cancelling listener to this EventBus with the default priority of {@link Priority#NORMAL}.
      * @param listener The listener to add.
      * @return A reference that can be used to remove this listener later with {@link #removeListener(EventListener)}.
      */
-    default EventListener addListener(Predicate<T> listener) {
-        return addListener(Priority.NORMAL, listener);
-    }
+    EventListener addListener(Predicate<T> listener);
 
     /**
      * Adds a possibly cancelling listener to this EventBus with the specified priority.
@@ -59,11 +58,11 @@ public sealed interface CancellableEventBus<T extends Event<T> & EventCharacteri
 
     EventListener addListener(ObjBooleanBiConsumer<T> listener);
 
-    static <T extends Event<T> & EventCharacteristic.Cancellable> CancellableEventBus<T> create() {
-        throw new UnsupportedOperationException("CancellableEventBus.create");
+    static <T extends Event<T> & EventCharacteristic.Cancellable> CancellableEventBus<T> create(Class<T> eventType) {
+        return create(BusGroup.DEFAULT, eventType);
     }
 
-    static <T extends Event<T> & EventCharacteristic.Cancellable> CancellableEventBus<T> create(Class<T> clazz) {
-        throw new UnsupportedOperationException("CancellableEventBus.create");
+    static <T extends Event<T> & EventCharacteristic.Cancellable> CancellableEventBus<T> create(BusGroup busGroup, Class<T> eventType) {
+        return (CancellableEventBus<T>) ((BusGroupImpl) busGroup).getOrCreateEventBus(eventType);
     }
 }

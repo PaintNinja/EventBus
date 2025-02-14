@@ -4,19 +4,19 @@ import net.minecraftforge.eventbus.api.event.Event;
 import net.minecraftforge.eventbus.api.event.EventCharacteristic;
 import net.minecraftforge.eventbus.api.listener.EventListener;
 import net.minecraftforge.eventbus.api.listener.Priority;
+import net.minecraftforge.eventbus.internal.AbstractEventBusImpl;
+import net.minecraftforge.eventbus.internal.BusGroupImpl;
 import net.minecraftforge.eventbus.internal.EventBusImpl;
 
 import java.util.function.Consumer;
 
-public sealed interface EventBus<T extends Event<T>> permits CancellableEventBus, EventBusImpl {
+public sealed interface EventBus<T extends Event<T>> permits CancellableEventBus, AbstractEventBusImpl, EventBusImpl {
     /**
      * Adds a listener to this EventBus with the default priority of {@link Priority#NORMAL}.
      * @param listener The listener to add
      * @return A reference that can be used to remove this listener later with {@link #removeListener(EventListener)}
      */
-    default EventListener addListener(Consumer<T> listener) {
-        return addListener(Priority.NORMAL, listener);
-    }
+    EventListener addListener(Consumer<T> listener);
 
     /**
      * Adds a listener to this EventBus with the given priority.
@@ -70,8 +70,8 @@ public sealed interface EventBus<T extends Event<T>> permits CancellableEventBus
      * </p>
      * @apiNote There can only be one EventBus instance per event type per BusGroup.
      */
-    static <E extends Event<E>> EventBus<E> create(Class<E> clazz) {
-        throw new UnsupportedOperationException("EventBus.create");
+    static <E extends Event<E>> EventBus<E> create(Class<E> eventType) {
+        return create(BusGroup.DEFAULT, eventType);
     }
 
     /**
@@ -82,7 +82,7 @@ public sealed interface EventBus<T extends Event<T>> permits CancellableEventBus
      * </p>
      * @apiNote There can only be one EventBus instance per event type per BusGroup.
      */
-    static <E extends Event<E>> EventBus<E> create(Class<E> clazz, BusGroup busGroup) {
-        throw new UnsupportedOperationException("EventBus.create");
+    static <E extends Event<E>> EventBus<E> create(BusGroup busGroup, Class<E> eventType) {
+        return ((BusGroupImpl) busGroup).getOrCreateEventBus(eventType);
     }
 }

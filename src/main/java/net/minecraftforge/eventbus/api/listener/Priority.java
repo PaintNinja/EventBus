@@ -1,7 +1,8 @@
 package net.minecraftforge.eventbus.api.listener;
 
 /**
- * Some common priority values, spread out evenly across the range of a Java signed byte (-128 - 127).
+ * Some common priority values, spread out evenly across the range of a Java signed byte, factoring in the special
+ * {@link Priority#MONITOR} priority.
  */
 public final class Priority {
     private Priority() {}
