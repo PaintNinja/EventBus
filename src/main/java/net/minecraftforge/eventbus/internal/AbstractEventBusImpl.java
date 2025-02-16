@@ -6,7 +6,9 @@ import net.minecraftforge.eventbus.api.event.EventCharacteristic;
 import net.minecraftforge.eventbus.api.listener.EventListener;
 import net.minecraftforge.eventbus.api.listener.Priority;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -35,6 +37,16 @@ public sealed interface AbstractEventBusImpl<T extends Event<T>, I> extends Even
             characteristics |= Constants.CHARACTERISTIC_SINGLE_THREADED;
 
         return characteristics;
+    }
+
+    static List<AbstractEventBusImpl<?, ?>> makeEventChildrenList(Class<?> eventType) {
+        if (eventType.isSealed())
+            return new ArrayList<>(eventType.getPermittedSubclasses().length);
+
+        if (Modifier.isFinal(eventType.getModifiers()))
+            return Collections.emptyList();
+
+        return new ArrayList<>();
     }
 
     @Override

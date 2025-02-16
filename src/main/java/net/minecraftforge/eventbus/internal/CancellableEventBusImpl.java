@@ -12,10 +12,7 @@ import java.lang.invoke.CallSite;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MutableCallSite;
 import java.lang.invoke.VolatileCallSite;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -46,7 +43,7 @@ public record CancellableEventBusImpl<T extends Event<T> & EventCharacteristic.C
                         : new VolatileCallSite(backingList.isEmpty() ? MH_NO_OP_PREDICATE : MH_NULL_PREDICATE),
                 backingList,
                 new HashSet<>(),
-                new ArrayList<>(),
+                AbstractEventBusImpl.makeEventChildrenList(eventType),
                 new AtomicBoolean(),
                 new AtomicBoolean(),
                 eventCharacteristics
@@ -146,11 +143,10 @@ public record CancellableEventBusImpl<T extends Event<T> & EventCharacteristic.C
             if ((eventCharacteristics() & CHARACTERISTIC_SELF_DESTRUCTING) != 0)
                 monitorBackingSet.add(new EventListenerImpl.MonitoringListener(busGroupName, eventType, (event, wasCancelled) -> dispose()));
 
-            Predicate<T> invoker = InvokerFactory.createCancellableMonitoringInvoker(
+            Predicate<T> invoker = setInvoker(InvokerFactory.createCancellableMonitoringInvoker(
                     eventType, eventCharacteristics, backingList, monitorBackingSet
-            );
+            ));
 
-            setInvoker(invoker);
             alreadyInvalidated.set(false);
             return invoker;
         }

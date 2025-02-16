@@ -10,10 +10,7 @@ import java.lang.invoke.CallSite;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MutableCallSite;
 import java.lang.invoke.VolatileCallSite;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
@@ -43,7 +40,7 @@ public record EventBusImpl<T extends Event<T>>(
                         : new VolatileCallSite(backingList.isEmpty() ? MH_NO_OP_CONSUMER : MH_NULL_CONSUMER),
                 backingList,
                 new HashSet<>(),
-                new ArrayList<>(),
+                AbstractEventBusImpl.makeEventChildrenList(eventType),
                 new AtomicBoolean(),
                 new AtomicBoolean(),
                 eventCharacteristics
@@ -125,9 +122,8 @@ public record EventBusImpl<T extends Event<T>>(
     /**
      * Should only be called from inside a {@code synchronized(backingList)} block.
      */
-    private Consumer<T> setInvoker(Consumer<T> invoker) {
+    private void setInvoker(Consumer<T> invoker) {
         invokerCallSite.setTarget(MethodHandles.constant(Consumer.class, invoker));
-        return invoker;
     }
     //endregion
 }
