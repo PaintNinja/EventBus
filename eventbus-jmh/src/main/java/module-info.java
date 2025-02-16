@@ -14,9 +14,9 @@ open module net.minecraftforge.eventbus.jmh {
     requires jmh.core;
 
     requires static org.jetbrains.annotations;
-    requires static net.minecraftforge.eventbus.testjars;
+    requires net.minecraftforge.eventbus.testjars;
     requires net.minecraftforge.unsafe;
 
-    provides cpw.mods.modlauncher.api.ITransformationService with
-        net.minecraftforge.eventbus.benchmarks.MockTransformerService;
+//    provides cpw.mods.modlauncher.api.ITransformationService with
+//        net.minecraftforge.eventbus.benchmarks.MockTransformerService;
 }

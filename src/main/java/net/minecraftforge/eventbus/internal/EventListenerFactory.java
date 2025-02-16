@@ -125,9 +125,7 @@ final class EventListenerFactory {
     private static <T extends Event<T>> Consumer<Event<T>> createConsumer(MethodHandles.Lookup callerLookup,
                                                                           Method callback, Object instance) {
         boolean isStatic = Modifier.isStatic(callback.getModifiers());
-        var factoryMH = LMF_CACHE.computeIfAbsent(callback, callbackMethod ->
-                makeFactory(callerLookup, callbackMethod, isStatic, instance, RETURNS_CONSUMER, CONSUMER_FI_TYPE, "accept")
-        );
+        var factoryMH = getOrMakeFactory(callerLookup, callback, isStatic, instance, RETURNS_CONSUMER, CONSUMER_FI_TYPE, "accept");
 
         try {
             return isStatic
@@ -144,9 +142,7 @@ final class EventListenerFactory {
     private static <T extends Event<T>> Predicate<Event<T>> createPredicate(MethodHandles.Lookup callerLookup,
                                                                             Method callback, Object instance) {
         boolean isStatic = Modifier.isStatic(callback.getModifiers());
-        var factoryMH = LMF_CACHE.computeIfAbsent(callback, callbackMethod ->
-                makeFactory(callerLookup, callbackMethod, isStatic, instance, RETURNS_PREDICATE, PREDICATE_FI_TYPE, "test")
-        );
+        var factoryMH = getOrMakeFactory(callerLookup, callback, isStatic, instance, RETURNS_PREDICATE, PREDICATE_FI_TYPE, "test");
 
         try {
             return isStatic
@@ -163,9 +159,7 @@ final class EventListenerFactory {
     private static <T extends Event<T>> ObjBooleanBiConsumer<Event<T>> createMonitor(MethodHandles.Lookup callerLookup,
                                                                                      Method callback, Object instance) {
         boolean isStatic = Modifier.isStatic(callback.getModifiers());
-        var factoryMH = LMF_CACHE.computeIfAbsent(callback, callbackMethod ->
-                makeFactory(callerLookup, callbackMethod, isStatic, instance, RETURNS_MONITOR, MONITOR_FI_TYPE, "accept")
-        );
+        var factoryMH = getOrMakeFactory(callerLookup, callback, isStatic, instance, RETURNS_MONITOR, MONITOR_FI_TYPE, "accept");
 
         try {
             return isStatic
@@ -176,6 +170,16 @@ final class EventListenerFactory {
         } catch (Throwable t) {
             throw new RuntimeException(t);
         }
+    }
+
+    private static MethodHandle getOrMakeFactory(MethodHandles.Lookup callerLookup, Method callback, boolean isStatic,
+                                                  Object instance, MethodType factoryReturnType, MethodType fiMethodType,
+                                                  String fiMethodName) {
+        if (Constants.ALLOW_DUPE_LISTENERS)
+            return makeFactory(callerLookup, callback, isStatic, instance, factoryReturnType, fiMethodType, fiMethodName);
+        else
+            return LMF_CACHE.computeIfAbsent(callback, callbackMethod ->
+                    makeFactory(callerLookup, callbackMethod, isStatic, instance, factoryReturnType, fiMethodType, fiMethodName));
     }
 
     private static MethodHandle makeFactory(MethodHandles.Lookup callerLookup, Method callback, boolean isStatic,

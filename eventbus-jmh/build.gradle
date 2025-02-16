@@ -11,7 +11,7 @@ repositories {
 }
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(16)
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
 }
 
 license {
@@ -71,7 +71,6 @@ tasks.register('jmh') {
             mainModule = 'net.minecraftforge.eventbus.jmh'
             mainClass = 'net.minecraftforge.eventbus.benchmarks.Main'
             modularity.inferModulePath = true
-            systemProperty 'jmh.ignoreLock', 'true'
             jvmArgs += '-Xmx8g' // Some tests are fast enough that they generate millions of class files, so, give more memory
             args = [
                     '-bm', 'AverageTime',  // Benchmark mode. Available modes are: [Throughput, AverageTime, SampleTime, SingleShotTime, All]

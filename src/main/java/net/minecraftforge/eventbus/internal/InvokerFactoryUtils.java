@@ -14,7 +14,11 @@ final class InvokerFactoryUtils {
     private InvokerFactoryUtils() {}
 
     static <T> List<Consumer<T>> unwrapConsumers(List<EventListener> listeners) {
-        return listeners.stream()
+        var stream = listeners.stream();
+        if (!Constants.ALLOW_DUPE_LISTENERS)
+            stream = stream.distinct();
+
+        return stream
                 .map(listener -> {
                     if (listener instanceof EventListenerImpl.HasConsumer<?> consumerListener) {
                         return consumerListener.consumer();
@@ -27,6 +31,7 @@ final class InvokerFactoryUtils {
     }
 
     static <T> List<Predicate<T>> unwrapPredicates(List<EventListener> listeners) {
+        // note: dedupe is done in InvokerFactory#createCancellableInvoker before it possibly reaches here
         var unwrappedPredicates = new ArrayList<Predicate<T>>(listeners.size());
         for (var listener : listeners) {
             if (listener instanceof EventListenerImpl.HasPredicate<?> predicateListener) {

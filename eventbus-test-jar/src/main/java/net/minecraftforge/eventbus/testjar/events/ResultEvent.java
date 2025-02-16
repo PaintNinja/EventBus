@@ -5,7 +5,24 @@
 
 package net.minecraftforge.eventbus.testjar.events;
 
-import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforge.eventbus.api.bus.EventBus;
+import net.minecraftforge.eventbus.api.event.MutableEvent;
 
-@Event.HasResult
-public class ResultEvent extends Event { }
+public class ResultEvent extends MutableEvent<ResultEvent> {
+    public static final EventBus<ResultEvent> BUS = EventBus.create(ResultEvent.class);
+
+    private Result result = Result.DEFAULT;
+
+    public Result getResult() {
+        return result;
+    }
+
+    public void setResult(Result result) {
+        this.result = result;
+    }
+
+    @Override
+    public EventBus<ResultEvent> defaultBus() {
+        return BUS;
+    }
+}

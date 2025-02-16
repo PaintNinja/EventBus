@@ -8,6 +8,8 @@ import java.lang.invoke.MethodHandles;
 import java.util.Comparator;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 final class Constants {
     private Constants() {}
@@ -26,6 +28,22 @@ final class Constants {
     static final int CHARACTERISTIC_SELF_DESTRUCTING = 1;
     static final int CHARACTERISTIC_MONITOR_AWARE = 2;
     static final int CHARACTERISTIC_SINGLE_THREADED = 4;
+
+    /**
+     * If true, allows the same listener to be registered multiple times. Intended for use in benchmarks only.
+     */
+    static final boolean ALLOW_DUPE_LISTENERS;
+    static {
+        String dedupe = System.getProperty("eventbus.internal.dedupeListeners", "true");
+        ALLOW_DUPE_LISTENERS = dedupe.equals("false");
+        if (ALLOW_DUPE_LISTENERS)
+            Logger.getGlobal().logp(
+                    Level.WARNING,
+                    Constants.class.getName(),
+                    "<clinit>()",
+                    "Allowing duplicate listeners to be registered. This is intended for use in benchmarks only."
+            );
+    }
 
     @SuppressWarnings("unchecked")
     static <T> Consumer<T> getNoOpConsumer() {
