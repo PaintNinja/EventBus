@@ -21,6 +21,29 @@ import java.util.function.Predicate;
 final class InvokerFactory {
     private InvokerFactory() {}
 
+    /**
+     * Threshold for the number of listeners at which the optimisation to unwrap non-cancellable listeners is applied.
+     * <p><u>When:</u></p>
+     * <ol>
+     *     <li>the number of listeners is less than or equal to this threshold</li>
+     *     <li>the event is cancellable</li>
+     *     <li>all listeners never cancel the event</li>
+     * </ol>
+     * <p><u>Then do:</u></p>
+     * <ol>
+     *     <li>Unwrap the individual listeners from their predicates back to consumers</li>
+     *     <li>Wrap in a single consumer that always returns false</li>
+     * </ol>
+     * <p><u>Notes:</u></p>
+     * <ul>
+     *     <li>Setting to 0 will disable this optimisation.</li>
+     *     <li>Setting too high can counter-intuitively slow down the event bus.</li>
+     *     <li>Default aligns with the max sized manually unrolled loop for consumers, which seems to be a safe bet looking at
+     *     the benchmarks, but needs more testing.</li>
+     * </ul>
+     */
+    private static final int UNWRAP_CANCELLABLE_THRESHOLD = Integer.getInteger("eventbus.experimental.unwrapCancellableThreshold", 4);
+
     static <T extends Event<T>> Consumer<T> createMonitoringInvoker(
             Class<T> eventType,
             int eventCharacteristics,
@@ -156,7 +179,9 @@ final class InvokerFactory {
 
             // ...so annoyingly, we need to duplicate the code of createInvoker() here, but with a different primitive return type (boolean instead of void)
             // Maybe JEP 402 can save us from this workaround in the future? https://openjdk.java.net/jeps/402
-            return createCancellableInvokerFromUnwrappedNoChecks((List<Consumer<T>>) (List) InvokerFactoryUtils.unwrapConsumers(listeners));
+
+            if (listeners.size() <= UNWRAP_CANCELLABLE_THRESHOLD)
+                return createCancellableInvokerFromUnwrappedNoChecks((List<Consumer<T>>) (List) InvokerFactoryUtils.unwrapConsumers(listeners));
         }
 
         return createCancellableInvokerFromUnwrapped((List<Predicate<T>>) (List) InvokerFactoryUtils.unwrapPredicates(listeners));
@@ -277,6 +302,13 @@ final class InvokerFactory {
                 var first = listeners.getFirst();
                 var second = listeners.getLast();
                 yield first.or(second);
+            }
+
+            case 3 -> {
+                var first = listeners.getFirst(); // 0
+                var second = listeners.get(1);
+                var third = listeners.getLast(); // 2
+                yield event -> first.test(event) || second.test(event) || third.test(event);
             }
 
             default -> {
