@@ -44,7 +44,7 @@ final class InvokerFactory {
      */
     private static final int UNWRAP_CANCELLABLE_THRESHOLD = Integer.getInteger("eventbus.experimental.unwrapCancellableThreshold", 4);
 
-    static <T extends Event<T>> Consumer<T> createMonitoringInvoker(
+    static <T extends Event> Consumer<T> createMonitoringInvoker(
             Class<T> eventType,
             int eventCharacteristics,
             List<EventListener> listeners,
@@ -66,18 +66,18 @@ final class InvokerFactory {
                 var firstMonitor = unwrappedMonitors.iterator().next();
                 return event -> {
                     invoker.accept(event);
-                    ((MutableEvent<?>) event).isMonitoring = true;
+                    ((MutableEvent) event).isMonitoring = true;
                     firstMonitor.accept(event, false);
-                    ((MutableEvent<?>) event).isMonitoring = false;
+                    ((MutableEvent) event).isMonitoring = false;
                 };
             } else {
                 return event -> {
                     invoker.accept(event);
-                    ((MutableEvent<?>) event).isMonitoring = true;
+                    ((MutableEvent) event).isMonitoring = true;
                     for (var monitor : unwrappedMonitors) {
                         monitor.accept(event, false);
                     }
-                    ((MutableEvent<?>) event).isMonitoring = false;
+                    ((MutableEvent) event).isMonitoring = false;
                 };
             }
         }
@@ -99,7 +99,7 @@ final class InvokerFactory {
         }
     }
 
-    static <T extends Event<T> & EventCharacteristic.Cancellable> Predicate<T> createCancellableMonitoringInvoker(
+    static <T extends Event & EventCharacteristic.Cancellable> Predicate<T> createCancellableMonitoringInvoker(
             Class<T> eventType,
             int eventCharacteristics,
             List<EventListener> listeners,
@@ -124,19 +124,19 @@ final class InvokerFactory {
                 var firstMonitor = unwrappedMonitors.iterator().next();
                 return event -> {
                     boolean cancelled = cancellableInvoker.test(event);
-                    ((MutableEvent<?>) event).isMonitoring = true;
+                    ((MutableEvent) event).isMonitoring = true;
                     firstMonitor.accept(event, cancelled);
-                    ((MutableEvent<?>) event).isMonitoring = false;
+                    ((MutableEvent) event).isMonitoring = false;
                     return cancelled;
                 };
             } else {
                 return event -> {
                     boolean cancelled = cancellableInvoker.test(event);
-                    ((MutableEvent<?>) event).isMonitoring = true;
+                    ((MutableEvent) event).isMonitoring = true;
                     for (var monitor : unwrappedMonitors) {
                         monitor.accept(event, cancelled);
                     }
-                    ((MutableEvent<?>) event).isMonitoring = false;
+                    ((MutableEvent) event).isMonitoring = false;
                     return cancelled;
                 };
             }
@@ -161,11 +161,11 @@ final class InvokerFactory {
         }
     }
 
-    private static <T extends Event<T>> Consumer<T> createInvoker(List<EventListener> listeners) {
+    private static <T extends Event> Consumer<T> createInvoker(List<EventListener> listeners) {
         return createInvokerFromUnwrapped((List<Consumer<T>>) (List) InvokerFactoryUtils.unwrapConsumers(listeners));
     }
 
-    private static <T extends Event<T> & EventCharacteristic.Cancellable> Predicate<T> createCancellableInvoker(List<EventListener> listeners) {
+    private static <T extends Event & EventCharacteristic.Cancellable> Predicate<T> createCancellableInvoker(List<EventListener> listeners) {
         // If none of the listeners are able to cancel the event, we can remove the overhead of checking for cancellation entirely
         // by treating it like a non-cancellable event.
         if (listeners.stream().allMatch(EventListenerImpl.WrappedConsumerListener.class::isInstance)) {
@@ -187,7 +187,7 @@ final class InvokerFactory {
         return createCancellableInvokerFromUnwrapped((List<Predicate<T>>) (List) InvokerFactoryUtils.unwrapPredicates(listeners));
     }
 
-    private static <T extends Event<T>> Consumer<T> createInvokerFromUnwrapped(List<Consumer<T>> listeners) {
+    private static <T extends Event> Consumer<T> createInvokerFromUnwrapped(List<Consumer<T>> listeners) {
         return switch (listeners.size()) {
             case 0 -> Constants.getNoOpConsumer(); // No-op
             case 1 -> listeners.getFirst(); // Direct call
@@ -236,7 +236,7 @@ final class InvokerFactory {
      * Same as {@link #createInvokerFromUnwrapped(List)} but returns a {@link Predicate} instead of a {@link Consumer}.
      * <p>See the code comments inside {@link #createCancellableInvoker(List)} for an explainer as to why this exists.</p>
      */
-    private static <T extends Event<T> & EventCharacteristic.Cancellable> Predicate<T> createCancellableInvokerFromUnwrappedNoChecks(List<Consumer<T>> listeners) {
+    private static <T extends Event & EventCharacteristic.Cancellable> Predicate<T> createCancellableInvokerFromUnwrappedNoChecks(List<Consumer<T>> listeners) {
         return switch (listeners.size()) {
             case 0 -> Constants.getNoOpPredicate();
             case 1 -> {
@@ -294,7 +294,7 @@ final class InvokerFactory {
         };
     }
 
-    private static <T extends Event<T> & EventCharacteristic.Cancellable> Predicate<T> createCancellableInvokerFromUnwrapped(List<Predicate<T>> listeners) {
+    private static <T extends Event & EventCharacteristic.Cancellable> Predicate<T> createCancellableInvokerFromUnwrapped(List<Predicate<T>> listeners) {
         return switch (listeners.size()) {
             case 0 -> Constants.getNoOpPredicate();
             case 1 -> listeners.getFirst(); // Direct call

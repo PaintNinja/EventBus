@@ -26,14 +26,14 @@ public sealed interface EventListenerImpl extends EventListener {
 
     record ConsumerListener(
             String busGroupName,
-            Class<? extends Event<?>> eventType,
+            Class<? extends Event> eventType,
             byte priority,
             Consumer<Event> consumer
     ) implements HasConsumer<Event> {}
 
     record PredicateListener(
             String busGroupName,
-            Class<? extends Event<?>> eventType,
+            Class<? extends Event> eventType,
             byte priority,
             Predicate<Event> predicate
     ) implements HasPredicate<Event> {
@@ -44,10 +44,10 @@ public sealed interface EventListenerImpl extends EventListener {
 
     record MonitoringListener(
             String busGroupName,
-            Class<? extends Event<?>> eventType,
+            Class<? extends Event> eventType,
             ObjBooleanBiConsumer<Event> booleanBiConsumer
     ) implements EventListenerImpl {
-        public MonitoringListener(String busGroupName, Class<? extends Event<?>> eventType, Consumer<Event> listener) {
+        public MonitoringListener(String busGroupName, Class<? extends Event> eventType, Consumer<Event> listener) {
             this(busGroupName, eventType, (event, wasCancelled) -> listener.accept(event));
         }
 
@@ -59,17 +59,17 @@ public sealed interface EventListenerImpl extends EventListener {
 
     record WrappedConsumerListener(
             String busGroupName,
-            Class<? extends Event<?>> eventType,
+            Class<? extends Event> eventType,
             byte priority,
             boolean alwaysCancelling,
             Consumer<Event> consumer,
             Predicate<Event> predicate
     ) implements HasConsumer<Event>, HasPredicate<Event> {
-        public WrappedConsumerListener(String busGroupName, Class<? extends Event<?>> eventType, byte priority, Consumer<Event> consumer) {
+        public WrappedConsumerListener(String busGroupName, Class<? extends Event> eventType, byte priority, Consumer<Event> consumer) {
             this(busGroupName, eventType, priority, false, consumer, wrap(false, consumer));
         }
 
-        public WrappedConsumerListener(String busGroupName, Class<? extends Event<?>> eventType, byte priority, boolean alwaysCancelling, Consumer<Event> consumer) {
+        public WrappedConsumerListener(String busGroupName, Class<? extends Event> eventType, byte priority, boolean alwaysCancelling, Consumer<Event> consumer) {
             this(busGroupName, eventType, priority, alwaysCancelling, consumer, wrap(alwaysCancelling, consumer));
         }
 

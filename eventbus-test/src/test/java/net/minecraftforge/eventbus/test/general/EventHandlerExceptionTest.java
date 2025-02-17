@@ -5,7 +5,8 @@
 
 package net.minecraftforge.eventbus.test.general;
 
-import net.minecraftforge.eventbus.api.BusBuilder;
+import net.minecraftforge.eventbus.api.bus.BusGroup;
+import net.minecraftforge.eventbus.api.bus.EventBus;
 import net.minecraftforge.eventbus.test.ITestHandler;
 import net.minecraftforge.eventbus.testjar.DummyEvent;
 import net.minecraftforge.eventbus.testjar.EventBusTestClass;
@@ -16,13 +17,15 @@ import java.util.function.Supplier;
 
 public class EventHandlerExceptionTest implements ITestHandler {
     @Override
-    public void test(Consumer<Class<?>> validator, Supplier<BusBuilder> builder) {
+    public void test(Consumer<Class<?>> validator, Supplier<BusGroup> busGroupSupplier) {
         validator.accept(DummyEvent.class);
         validator.accept(DummyEvent.BadEvent.class);
 
-        var bus = builder.get().build();
+        var busGroup = busGroupSupplier.get();
         var listener = new EventBusTestClass();
-        bus.register(listener);
-        assertThrows(RuntimeException.class, ()->bus.post(new DummyEvent.BadEvent()));
+        listener.register(busGroup);
+        assertThrows(RuntimeException.class, () -> {
+            EventBus.create(DummyEvent.BadEvent.class).post(new DummyEvent.BadEvent());
+        });
     }
 }

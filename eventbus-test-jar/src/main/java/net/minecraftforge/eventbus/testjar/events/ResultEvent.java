@@ -6,9 +6,10 @@
 package net.minecraftforge.eventbus.testjar.events;
 
 import net.minecraftforge.eventbus.api.bus.EventBus;
+import net.minecraftforge.eventbus.api.event.EventCharacteristic;
 import net.minecraftforge.eventbus.api.event.MutableEvent;
 
-public class ResultEvent extends MutableEvent<ResultEvent> {
+public class ResultEvent extends MutableEvent implements EventCharacteristic.SelfPosting<ResultEvent> {
     public static final EventBus<ResultEvent> BUS = EventBus.create(ResultEvent.class);
 
     private Result result = Result.DEFAULT;
@@ -22,7 +23,7 @@ public class ResultEvent extends MutableEvent<ResultEvent> {
     }
 
     @Override
-    public EventBus<ResultEvent> defaultBus() {
+    public EventBus<ResultEvent> getDefaultBus() {
         return BUS;
     }
 }

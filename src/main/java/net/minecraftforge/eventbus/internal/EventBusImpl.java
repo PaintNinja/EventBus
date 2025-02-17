@@ -16,7 +16,7 @@ import java.util.function.Consumer;
 
 import static net.minecraftforge.eventbus.internal.Constants.*;
 
-public record EventBusImpl<T extends Event<T>>(
+public record EventBusImpl<T extends Event>(
         String busGroupName,
         Class<T> eventType,
         CallSite invokerCallSite,

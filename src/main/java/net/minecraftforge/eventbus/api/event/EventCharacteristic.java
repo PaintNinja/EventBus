@@ -29,7 +29,7 @@ public sealed interface EventCharacteristic {
      */
     non-sealed interface MonitorAware extends EventCharacteristic {
         default boolean isMonitoring() {
-            return ((MutableEvent<?>) this).isMonitoring;
+            return ((MutableEvent) this).isMonitoring;
         }
     }
 
@@ -42,4 +42,18 @@ public sealed interface EventCharacteristic {
      * behaviour - avoid using if unsure.</p>
      */
     non-sealed interface SingleThreaded extends EventCharacteristic {}
+
+    non-sealed interface SelfPosting<T extends Event> extends EventCharacteristic {
+        EventBus<T> getDefaultBus();
+
+        @SuppressWarnings("unchecked")
+        default boolean post() {
+            return getDefaultBus().post((T) this);
+        }
+
+        @SuppressWarnings("unchecked")
+        default T fire() {
+            return (T) getDefaultBus().fire((T) this);
+        }
+    }
 }

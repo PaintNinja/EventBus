@@ -19,7 +19,7 @@ import java.util.function.Predicate;
 
 import static net.minecraftforge.eventbus.internal.Constants.*;
 
-public record CancellableEventBusImpl<T extends Event<T> & EventCharacteristic.Cancellable>(
+public record CancellableEventBusImpl<T extends Event & EventCharacteristic.Cancellable>(
         String busGroupName,
         Class<T> eventType,
         CallSite invokerCallSite,

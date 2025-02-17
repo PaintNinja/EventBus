@@ -6,44 +6,47 @@
 package net.minecraftforge.eventbus.test.general;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import net.minecraftforge.eventbus.api.BusBuilder;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.eventbus.api.bus.EventBus;
+import net.minecraftforge.eventbus.api.event.EventCharacteristic;
+import net.minecraftforge.eventbus.api.event.RecordEvent;
 import net.minecraftforge.eventbus.test.ITestHandler;
 
 public class EventFiringEventTest implements ITestHandler {
     @Override
-    public void test(Consumer<Class<?>> validator, Supplier<BusBuilder> builder) {
-        validator.accept(Event1.class);
-        validator.accept(AbstractEvent.class);
-        validator.accept(AbstractEvent.Event2.class);
-
-        IEventBus bus = builder.get().build();
+    public void test() {
         AtomicBoolean handled1 = new AtomicBoolean(false);
         AtomicBoolean handled2 = new AtomicBoolean(false);
-        bus.addListener(EventPriority.NORMAL, false, Event1.class, (event1) -> {
-            bus.post(new AbstractEvent.Event2());
+
+        Event1.BUS.addListener(event1 -> {
+            new Event2().post();
             handled1.set(true);
         });
-        bus.addListener(EventPriority.NORMAL, false, AbstractEvent.Event2.class, (event2) -> {
-            handled2.set(true);
-        });
+        Event2.BUS.addListener(event2 -> handled2.set(true));
 
-        bus.post(new Event1());
+        new Event1().post();
 
         assertTrue(handled1.get(), "handled Event1");
         assertTrue(handled2.get(), "handled Event2");
     }
 
-    public static class Event1 extends Event {}
+    public record Event1() implements RecordEvent<Event1>, EventCharacteristic.SelfPosting<Event1> {
+        public static final EventBus<Event1> BUS = EventBus.create(Event1.class);
 
-    public static abstract class AbstractEvent extends Event {
-        public static class Event2 extends AbstractEvent {}
+        @Override
+        public EventBus<Event1> getDefaultBus() {
+            return BUS;
+        }
+    }
+
+    public record Event2() implements RecordEvent<Event2>, EventCharacteristic.SelfPosting<Event2> {
+        public static final EventBus<Event2> BUS = EventBus.create(Event2.class);
+
+        @Override
+        public EventBus<Event2> getDefaultBus() {
+            return BUS;
+        }
     }
 }

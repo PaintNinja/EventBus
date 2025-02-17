@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public record BusGroupImpl(
         String name,
-        ConcurrentHashMap<Class<? extends Event<?>>, EventBus<?>> eventBuses
+        ConcurrentHashMap<Class<? extends Event>, EventBus<?>> eventBuses
 ) implements BusGroup {
     private static final Set<String> BUS_GROUP_NAMES = ConcurrentHashMap.newKeySet();
 
@@ -21,7 +21,7 @@ public record BusGroupImpl(
 
     public BusGroupImpl {
         if (!BUS_GROUP_NAMES.add(Objects.requireNonNull(name)))
-            throw new IllegalArgumentException("BusGroup name \"" + name + "\" is already in use!");
+            throw new IllegalArgumentException("BusGroup name \"" + name + "\" is already in use");
     }
 
     @Override
@@ -72,7 +72,7 @@ public record BusGroupImpl(
 
     //region Internal access only
     @SuppressWarnings("unchecked")
-    private <T extends Event<T>> EventBus<T> createEventBus(Class<T> eventType) {
+    private <T extends Event> EventBus<T> createEventBus(Class<T> eventType) {
         if (InheritableEvent.class.isAssignableFrom(eventType)) {
             var maybeEventBus = eventBuses.get(eventType);
             if (maybeEventBus != null)
@@ -106,7 +106,7 @@ public record BusGroupImpl(
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends Event<T>> EventBus<T> getOrCreateEventBus(Class<T> eventType) {
+    public <T extends Event> EventBus<T> getOrCreateEventBus(Class<T> eventType) {
         return (EventBus<T>) eventBuses.computeIfAbsent(eventType, event -> createEventBus(eventType));
     }
     //endregion
@@ -121,7 +121,7 @@ public record BusGroupImpl(
         return name.hashCode();
     }
 
-    private <T extends Event<T>> List<EventBus<?>> getParentEvents(Class<T> eventType) {
+    private <T extends Event> List<EventBus<?>> getParentEvents(Class<T> eventType) {
         var parentEvents = new ArrayList<EventBus<?>>();
 
         // first handle class inheritance (e.g. MyEvent extends ParentEvent)
@@ -132,7 +132,7 @@ public record BusGroupImpl(
                 && InheritableEvent.class.isAssignableFrom(parent) // implements InheritableEvent
                 && !parent.isAnnotationPresent(MarkerEvent.class) // the parent hasn't opted out of listener inheritance
         ) {
-            @SuppressWarnings({"unchecked", "rawtypes"})
+            @SuppressWarnings("unchecked")
             var parentEvent = getOrCreateEventBus((Class<? extends Event>) parent);
             parentEvents.add(parentEvent);
         }
@@ -140,7 +140,7 @@ public record BusGroupImpl(
         // then handle interfaces (e.g. MyEvent implements MyEventInterface)
         for (var iface : eventType.getInterfaces()) {
             if (InheritableEvent.class.isAssignableFrom(iface) && !iface.isAnnotationPresent(MarkerEvent.class)) {
-                @SuppressWarnings({"unchecked", "rawtypes"})
+                @SuppressWarnings("unchecked")
                 var parentEvent = createEventBus((Class<? extends Event>) iface);
                 parentEvents.add(parentEvent);
             }

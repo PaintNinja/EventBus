@@ -14,8 +14,8 @@ import java.util.logging.Logger;
 final class Constants {
     private Constants() {}
 
-    private static final Consumer<Event<?>> NO_OP_CONSUMER = event -> {};
-    private static final Predicate<Event<?>> NO_OP_PREDICATE = event -> false;
+    private static final Consumer<Event> NO_OP_CONSUMER = event -> {};
+    private static final Predicate<Event> NO_OP_PREDICATE = event -> false;
 
     static final MethodHandle MH_NULL_CONSUMER = MethodHandles.constant(Consumer.class, null);
     static final MethodHandle MH_NO_OP_CONSUMER = MethodHandles.constant(Consumer.class, NO_OP_CONSUMER);

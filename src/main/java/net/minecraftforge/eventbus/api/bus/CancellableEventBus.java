@@ -11,7 +11,7 @@ import net.minecraftforge.eventbus.internal.CancellableEventBusImpl;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-public sealed interface CancellableEventBus<T extends Event<T> & EventCharacteristic.Cancellable>
+public sealed interface CancellableEventBus<T extends Event & EventCharacteristic.Cancellable>
         extends EventBus<T> permits CancellableEventBusImpl {
     /**
      * Adds an always cancelling listener to this EventBus with the default priority of {@link Priority#NORMAL}.
@@ -58,11 +58,11 @@ public sealed interface CancellableEventBus<T extends Event<T> & EventCharacteri
 
     EventListener addListener(ObjBooleanBiConsumer<T> listener);
 
-    static <T extends Event<T> & EventCharacteristic.Cancellable> CancellableEventBus<T> create(Class<T> eventType) {
+    static <T extends Event & EventCharacteristic.Cancellable> CancellableEventBus<T> create(Class<T> eventType) {
         return create(BusGroup.DEFAULT, eventType);
     }
 
-    static <T extends Event<T> & EventCharacteristic.Cancellable> CancellableEventBus<T> create(BusGroup busGroup, Class<T> eventType) {
+    static <T extends Event & EventCharacteristic.Cancellable> CancellableEventBus<T> create(BusGroup busGroup, Class<T> eventType) {
         return (CancellableEventBus<T>) ((BusGroupImpl) busGroup).getOrCreateEventBus(eventType);
     }
 }

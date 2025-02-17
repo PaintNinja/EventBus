@@ -18,7 +18,7 @@ import java.util.function.Consumer;
 public sealed interface EventListener permits EventListenerImpl {
     String busGroupName();
 
-    Class<? extends Event<?>> eventType();
+    Class<? extends Event> eventType();
 
     /**
      * @see Priority

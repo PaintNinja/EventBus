@@ -122,15 +122,15 @@ final class EventListenerFactory {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T extends Event<T>> Consumer<Event<T>> createConsumer(MethodHandles.Lookup callerLookup,
+    private static <T extends Event> Consumer<T> createConsumer(MethodHandles.Lookup callerLookup,
                                                                           Method callback, Object instance) {
         boolean isStatic = Modifier.isStatic(callback.getModifiers());
         var factoryMH = getOrMakeFactory(callerLookup, callback, isStatic, instance, RETURNS_CONSUMER, CONSUMER_FI_TYPE, "accept");
 
         try {
             return isStatic
-                    ? (Consumer<Event<T>>) factoryMH.invokeExact()
-                    : (Consumer<Event<T>>) factoryMH.invokeExact(instance);
+                    ? (Consumer<T>) factoryMH.invokeExact()
+                    : (Consumer<T>) factoryMH.invokeExact(instance);
         } catch (Exception e) {
             throw makeRuntimeException(callback, e);
         } catch (Throwable t) {
@@ -139,15 +139,15 @@ final class EventListenerFactory {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T extends Event<T>> Predicate<Event<T>> createPredicate(MethodHandles.Lookup callerLookup,
+    private static <T extends Event> Predicate<T> createPredicate(MethodHandles.Lookup callerLookup,
                                                                             Method callback, Object instance) {
         boolean isStatic = Modifier.isStatic(callback.getModifiers());
         var factoryMH = getOrMakeFactory(callerLookup, callback, isStatic, instance, RETURNS_PREDICATE, PREDICATE_FI_TYPE, "test");
 
         try {
             return isStatic
-                    ? (Predicate<Event<T>>) factoryMH.invokeExact()
-                    : (Predicate<Event<T>>) factoryMH.invokeExact(instance);
+                    ? (Predicate<T>) factoryMH.invokeExact()
+                    : (Predicate<T>) factoryMH.invokeExact(instance);
         } catch (Exception e) {
             throw makeRuntimeException(callback, e);
         } catch (Throwable t) {
@@ -156,15 +156,15 @@ final class EventListenerFactory {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T extends Event<T>> ObjBooleanBiConsumer<Event<T>> createMonitor(MethodHandles.Lookup callerLookup,
+    private static <T extends Event> ObjBooleanBiConsumer<T> createMonitor(MethodHandles.Lookup callerLookup,
                                                                                      Method callback, Object instance) {
         boolean isStatic = Modifier.isStatic(callback.getModifiers());
         var factoryMH = getOrMakeFactory(callerLookup, callback, isStatic, instance, RETURNS_MONITOR, MONITOR_FI_TYPE, "accept");
 
         try {
             return isStatic
-                    ? (ObjBooleanBiConsumer<Event<T>>) factoryMH.invokeExact()
-                    : (ObjBooleanBiConsumer<Event<T>>) factoryMH.invokeExact(instance);
+                    ? (ObjBooleanBiConsumer<T>) factoryMH.invokeExact()
+                    : (ObjBooleanBiConsumer<T>) factoryMH.invokeExact(instance);
         } catch (Exception e) {
             throw makeRuntimeException(callback, e);
         } catch (Throwable t) {

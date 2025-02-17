@@ -10,7 +10,7 @@ import net.minecraftforge.eventbus.internal.EventBusImpl;
 
 import java.util.function.Consumer;
 
-public sealed interface EventBus<T extends Event<T>> permits CancellableEventBus, AbstractEventBusImpl, EventBusImpl {
+public sealed interface EventBus<T extends Event> permits CancellableEventBus, AbstractEventBusImpl, EventBusImpl {
     /**
      * Adds a listener to this EventBus with the default priority of {@link Priority#NORMAL}.
      * @param listener The listener to add
@@ -70,7 +70,7 @@ public sealed interface EventBus<T extends Event<T>> permits CancellableEventBus
      * </p>
      * @apiNote There can only be one EventBus instance per event type per BusGroup.
      */
-    static <E extends Event<E>> EventBus<E> create(Class<E> eventType) {
+    static <E extends Event> EventBus<E> create(Class<E> eventType) {
         return create(BusGroup.DEFAULT, eventType);
     }
 
@@ -82,7 +82,7 @@ public sealed interface EventBus<T extends Event<T>> permits CancellableEventBus
      * </p>
      * @apiNote There can only be one EventBus instance per event type per BusGroup.
      */
-    static <E extends Event<E>> EventBus<E> create(BusGroup busGroup, Class<E> eventType) {
+    static <E extends Event> EventBus<E> create(BusGroup busGroup, Class<E> eventType) {
         return ((BusGroupImpl) busGroup).getOrCreateEventBus(eventType);
     }
 }
