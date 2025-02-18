@@ -8,13 +8,13 @@ package net.minecraftforge.eventbus.test.general;
 import net.minecraftforge.eventbus.api.bus.BusGroup;
 import net.minecraftforge.eventbus.api.bus.EventBus;
 import net.minecraftforge.eventbus.api.event.InheritableEvent;
+import net.minecraftforge.eventbus.api.event.MutableEvent;
 import net.minecraftforge.eventbus.test.ITestHandler;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AbstractEventListenerTest implements ITestHandler {
@@ -44,24 +44,13 @@ public class AbstractEventListenerTest implements ITestHandler {
         assertTrue(concreteSuperEventHandled.get(), "handled concrete super event");
         assertTrue(abstractSubEventHandled.get(), "handled abstract sub event");
         assertTrue(concreteSubEventHandled.get(), "handled concrete sub event");
-        assertEquals(100, AbstractSubEvent.MERGED_STATIC_INIT, "static init merge failed");
     }
 
-    /*
-     * Below, we simulate the things that are added by EventSubclassTransformer
-     * to show that it will work alongside the static listener map.
-     * We do not use the field name LISTNER_LIST as that's how we tell if the transformer has run
-     */
-    public static abstract class AbstractSuperEvent implements InheritableEvent {}
+    public interface AbstractSuperEvent extends InheritableEvent {}
 
-    public static class ConcreteSuperEvent extends AbstractSuperEvent {}
+    public static class ConcreteSuperEvent extends MutableEvent implements AbstractSuperEvent {}
 
-    // In transformed world, this will have a 'LISTENER_LIST' injected.
-    // Make sure that it merges static init instead of overwrites
-    public static class AbstractSubEvent extends ConcreteSuperEvent {
-        protected static int MERGED_STATIC_INIT = 100;
-    }
+    public static class AbstractSubEvent extends ConcreteSuperEvent {}
 
-    public static class ConcreteSubEvent extends AbstractSubEvent {}
-
+    public static final class ConcreteSubEvent extends AbstractSubEvent {}
 }

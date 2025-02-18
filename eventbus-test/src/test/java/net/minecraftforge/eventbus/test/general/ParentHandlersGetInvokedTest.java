@@ -18,7 +18,7 @@ public class ParentHandlersGetInvokedTest implements ITestHandler {
     public void test() {
         AtomicBoolean superEventHandled = new AtomicBoolean(false);
         AtomicBoolean subEventHandled = new AtomicBoolean(false);
-        SuperEvent.BUS.addListener(event -> {
+        var listener = SuperEvent.BUS.addListener(event -> {
             Class<? extends SuperEvent> eventClass = event.getClass();
             if (eventClass == SuperEvent.class) {
                 superEventHandled.set(true);
@@ -32,13 +32,20 @@ public class ParentHandlersGetInvokedTest implements ITestHandler {
 
         assertTrue(superEventHandled.get(), "Handler was not invoked for SuperEvent");
         assertTrue(subEventHandled.get(), "Handler was not invoked for SubEvent");
+
+        superEventHandled.set(false);
+        SuperEvent.BUS.removeListener(listener);
+        SuperEvent.BUS.addListener(listener);
+        SubEvent.BUS.post(new SubEvent());
+
+        assertTrue(subEventHandled.get(), "Handler was not invoked for SuperEvent after re-adding listener");
     }
 
-    public static class SuperEvent extends MutableEvent {
-        public static final EventBus<SuperEvent> BUS = EventBus.create(SuperEvent.class);
+    private static sealed class SuperEvent extends MutableEvent implements InheritableEvent permits SubEvent {
+        private static final EventBus<SuperEvent> BUS = EventBus.create(SuperEvent.class);
     }
 
-    public static final class SubEvent extends SuperEvent {
-        public static final EventBus<SubEvent> BUS = EventBus.create(SubEvent.class);
+    private static final class SubEvent extends SuperEvent {
+        private static final EventBus<SubEvent> BUS = EventBus.create(SubEvent.class);
     }
 }

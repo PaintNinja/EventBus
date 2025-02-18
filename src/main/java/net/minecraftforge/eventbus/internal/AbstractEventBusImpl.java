@@ -93,7 +93,7 @@ public sealed interface AbstractEventBusImpl<T extends Event, I> extends EventBu
         if (removed) {
             invalidateInvoker();
             for (var child : children()) {
-                child.addListener(listener);
+                child.removeListener(listener);
             }
         }
     }
@@ -130,24 +130,28 @@ public sealed interface AbstractEventBusImpl<T extends Event, I> extends EventBu
     //endregion
 
     default void startup() {
-        if (shutdownFlag().compareAndSet(true, false)) {
-            synchronized (backingList()) {
-                // Force invalidate the invoker to remove the no-op invoker that might've been set by shutdown()
-                alreadyInvalidated().set(false);
-                invalidateInvoker();
-            }
+        if (!shutdownFlag().compareAndSet(true, false))
+            return;
+
+        synchronized (backingList()) {
+            // Force invalidate the invoker to remove the no-op invoker that might've been set by shutdown()
+            alreadyInvalidated().set(false);
+            invalidateInvoker();
         }
+        children().forEach(AbstractEventBusImpl::startup);
     }
 
     default void shutdown() {
-        if (shutdownFlag().compareAndSet(false, true)) {
-            synchronized (backingList()) {
-                // When shutdown, set the invoker to a no-op invoker and prevent it from being invalidated
-                // on calls to addListener() to keep the no-op invoker
-                setNoOpInvoker();
-                alreadyInvalidated().set(true);
-            }
+        if (!shutdownFlag().compareAndSet(false, true))
+            return;
+
+        synchronized (backingList()) {
+            // When shutdown, set the invoker to a no-op invoker and prevent it from being invalidated
+            // on calls to addListener() to keep the no-op invoker
+            setNoOpInvoker();
+            alreadyInvalidated().set(true);
         }
+        children().forEach(AbstractEventBusImpl::shutdown);
     }
 
     default void dispose() {
@@ -159,5 +163,6 @@ public sealed interface AbstractEventBusImpl<T extends Event, I> extends EventBu
             if (backingList() instanceof ArrayList<?> arrayList)
                 arrayList.trimToSize();
         }
+        children().forEach(AbstractEventBusImpl::dispose);
     }
 }
