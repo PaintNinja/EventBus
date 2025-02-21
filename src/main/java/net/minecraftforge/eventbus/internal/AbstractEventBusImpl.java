@@ -33,9 +33,6 @@ public sealed interface AbstractEventBusImpl<T extends Event, I> extends EventBu
         if (EventCharacteristic.MonitorAware.class.isAssignableFrom(eventType))
             characteristics |= Constants.CHARACTERISTIC_MONITOR_AWARE;
 
-        if (EventCharacteristic.SingleThreaded.class.isAssignableFrom(eventType))
-            characteristics |= Constants.CHARACTERISTIC_SINGLE_THREADED;
-
         return characteristics;
     }
 
@@ -51,49 +48,33 @@ public sealed interface AbstractEventBusImpl<T extends Event, I> extends EventBu
 
     @Override
     default EventListener addListener(EventListener listener) {
-        if ((eventCharacteristics() & Constants.CHARACTERISTIC_SINGLE_THREADED) != 0) {
-            synchronized (backingList()) {
-                return addListenerInternal(listener);
+        synchronized (backingList()) {
+            boolean added = listener.priority() == Priority.MONITOR
+                    ? monitorBackingSet().add(listener)
+                    : backingList().add(listener);
+
+            if (added) {
+                invalidateInvoker();
+                for (var child : children()) {
+                    child.addListener(listener);
+                }
             }
-        } else {
-            return addListenerInternal(listener);
+            return listener;
         }
     }
 
     @Override
     default void removeListener(EventListener listener) {
-        if ((eventCharacteristics() & Constants.CHARACTERISTIC_SINGLE_THREADED) != 0) {
-            synchronized (backingList()) {
-                removeListenerInternal(listener);
-            }
-        } else {
-            removeListenerInternal(listener);
-        }
-    }
+        synchronized (backingList()) {
+            boolean removed = listener.priority() == Priority.MONITOR
+                    ? monitorBackingSet().remove(listener)
+                    : backingList().remove(listener);
 
-    private EventListener addListenerInternal(EventListener listener) {
-        boolean added = listener.priority() == Priority.MONITOR
-                ? monitorBackingSet().add(listener)
-                : backingList().add(listener);
-
-        if (added) {
-            invalidateInvoker();
-            for (var child : children()) {
-                child.addListener(listener);
-            }
-        }
-        return listener;
-    }
-
-    private void removeListenerInternal(EventListener listener) {
-        boolean removed = listener.priority() == Priority.MONITOR
-                ? monitorBackingSet().remove(listener)
-                : backingList().remove(listener);
-
-        if (removed) {
-            invalidateInvoker();
-            for (var child : children()) {
-                child.removeListener(listener);
+            if (removed) {
+                invalidateInvoker();
+                for (var child : children()) {
+                    child.removeListener(listener);
+                }
             }
         }
     }

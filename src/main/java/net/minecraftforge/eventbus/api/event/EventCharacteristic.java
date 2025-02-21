@@ -33,16 +33,6 @@ public sealed interface EventCharacteristic {
         }
     }
 
-    /**
-     * Experimental feature - may be removed or renamed without notice.
-     * <p>All {@link EventBus}es support concurrent operation by default, but you can opt out of this thread-safety
-     * by using this characteristic if you know all event listeners are always registered and posted on the same
-     * thread.</p>
-     * <p>Warning: Incorrect usage of this characteristic may cause corruption, crashes and/or other unexpected
-     * behaviour - avoid using if unsure.</p>
-     */
-    non-sealed interface SingleThreaded extends EventCharacteristic {}
-
     non-sealed interface SelfPosting<T extends Event> extends EventCharacteristic {
         EventBus<T> getDefaultBus();
 

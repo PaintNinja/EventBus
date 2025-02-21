@@ -38,9 +38,7 @@ public record CancellableEventBusImpl<T extends Event & EventCharacteristic.Canc
         this(
                 busGroupName,
                 eventType,
-                (eventCharacteristics & CHARACTERISTIC_SINGLE_THREADED) != 0
-                        ? new MutableCallSite(backingList.isEmpty() ? MH_NO_OP_PREDICATE : MH_NULL_PREDICATE)
-                        : new VolatileCallSite(backingList.isEmpty() ? MH_NO_OP_PREDICATE : MH_NULL_PREDICATE),
+                new VolatileCallSite(backingList.isEmpty() ? MH_NO_OP_PREDICATE : MH_NULL_PREDICATE),
                 backingList,
                 new HashSet<>(),
                 AbstractEventBusImpl.makeEventChildrenList(eventType),

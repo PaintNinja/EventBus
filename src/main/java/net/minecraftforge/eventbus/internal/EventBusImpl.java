@@ -35,9 +35,7 @@ public record EventBusImpl<T extends Event>(
         this(
                 busGroupName,
                 eventType,
-                (eventCharacteristics & CHARACTERISTIC_SINGLE_THREADED) != 0
-                        ? new MutableCallSite(backingList.isEmpty() ? MH_NO_OP_CONSUMER : MH_NULL_CONSUMER)
-                        : new VolatileCallSite(backingList.isEmpty() ? MH_NO_OP_CONSUMER : MH_NULL_CONSUMER),
+                new VolatileCallSite(backingList.isEmpty() ? MH_NO_OP_CONSUMER : MH_NULL_CONSUMER),
                 backingList,
                 new HashSet<>(),
                 AbstractEventBusImpl.makeEventChildrenList(eventType),

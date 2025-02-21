@@ -27,7 +27,6 @@ final class Constants {
 
     static final int CHARACTERISTIC_SELF_DESTRUCTING = 1;
     static final int CHARACTERISTIC_MONITOR_AWARE = 2;
-    static final int CHARACTERISTIC_SINGLE_THREADED = 4;
 
     /**
      * If true, allows the same listener to be registered multiple times. Intended for use in benchmarks only.
