@@ -6,10 +6,10 @@
 package net.minecraftforge.eventbus.testjar.events;
 
 import net.minecraftforge.eventbus.api.bus.EventBus;
-import net.minecraftforge.eventbus.api.event.EventCharacteristic;
 import net.minecraftforge.eventbus.api.event.MutableEvent;
+import net.minecraftforge.eventbus.api.event.characteristic.SelfPosting;
 
-public class ResultEvent extends MutableEvent implements EventCharacteristic.SelfPosting<ResultEvent> {
+public class ResultEvent extends MutableEvent implements SelfPosting<ResultEvent> {
     public static final EventBus<ResultEvent> BUS = EventBus.create(ResultEvent.class);
 
     private Result result = Result.DEFAULT;

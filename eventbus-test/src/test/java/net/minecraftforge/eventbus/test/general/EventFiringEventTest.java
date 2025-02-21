@@ -10,8 +10,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import net.minecraftforge.eventbus.api.bus.EventBus;
-import net.minecraftforge.eventbus.api.event.EventCharacteristic;
 import net.minecraftforge.eventbus.api.event.RecordEvent;
+import net.minecraftforge.eventbus.api.event.characteristic.SelfPosting;
 import net.minecraftforge.eventbus.test.ITestHandler;
 
 public class EventFiringEventTest implements ITestHandler {
@@ -32,7 +32,7 @@ public class EventFiringEventTest implements ITestHandler {
         assertTrue(handled2.get(), "handled Event2");
     }
 
-    public record Event1() implements RecordEvent, EventCharacteristic.SelfPosting<Event1> {
+    public record Event1() implements RecordEvent, SelfPosting<Event1> {
         public static final EventBus<Event1> BUS = EventBus.create(Event1.class);
 
         @Override
@@ -41,7 +41,7 @@ public class EventFiringEventTest implements ITestHandler {
         }
     }
 
-    public record Event2() implements RecordEvent, EventCharacteristic.SelfPosting<Event2> {
+    public record Event2() implements RecordEvent, SelfPosting<Event2> {
         public static final EventBus<Event2> BUS = EventBus.create(Event2.class);
 
         @Override

@@ -1,6 +1,6 @@
 package net.minecraftforge.eventbus.api.listener;
 
-import net.minecraftforge.eventbus.api.event.EventCharacteristic;
+import net.minecraftforge.eventbus.api.event.characteristic.Cancellable;
 
 import java.lang.annotation.*;
 
@@ -13,8 +13,7 @@ public @interface SubscribeEvent {
     /**
      * If the event is cancellable, setting this to true will make the listener always cancel the event.
      *
-     * @apiNote If true, the annotated method must return {@code void} and the event must implement
-     *          {@link EventCharacteristic.Cancellable}.
+     * @implSpec If true, the annotated method must return {@code void} and the event must implement {@link Cancellable}.
      */
     boolean alwaysCancelling() default false;
 }

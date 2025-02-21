@@ -6,10 +6,10 @@
 package net.minecraftforge.eventbus.testjar.events;
 
 import net.minecraftforge.eventbus.api.bus.EventBus;
-import net.minecraftforge.eventbus.api.event.EventCharacteristic;
 import net.minecraftforge.eventbus.api.event.RecordEvent;
+import net.minecraftforge.eventbus.api.event.characteristic.SelfPosting;
 
-public record EventWithData(String data, int foo, boolean bar) implements RecordEvent, EventCharacteristic.SelfPosting<EventWithData> {
+public record EventWithData(String data, int foo, boolean bar) implements RecordEvent, SelfPosting<EventWithData> {
     public static final EventBus<EventWithData> BUS = EventBus.create(EventWithData.class);
 
     @Override

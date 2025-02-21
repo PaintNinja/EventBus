@@ -4,7 +4,9 @@
  */
 open module net.minecraftforge.eventbus {
     requires java.logging;
+
     exports net.minecraftforge.eventbus.api.bus;
     exports net.minecraftforge.eventbus.api.event;
+    exports net.minecraftforge.eventbus.api.event.characteristic;
     exports net.minecraftforge.eventbus.api.listener;
 }

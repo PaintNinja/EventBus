@@ -3,6 +3,7 @@ package net.minecraftforge.eventbus.internal;
 import net.minecraftforge.eventbus.api.bus.BusGroup;
 import net.minecraftforge.eventbus.api.bus.EventBus;
 import net.minecraftforge.eventbus.api.event.*;
+import net.minecraftforge.eventbus.api.event.characteristic.Cancellable;
 import net.minecraftforge.eventbus.api.listener.EventListener;
 
 import java.lang.invoke.MethodHandles;
@@ -95,8 +96,8 @@ public record BusGroupImpl(
 //                eventType,
 //                event -> {
                     @SuppressWarnings("rawtypes") // Raw types are unavoidable due to limitations in Java's type system.
-                    var bus = EventCharacteristic.Cancellable.class.isAssignableFrom(eventType)
-                            ? new CancellableEventBusImpl<>(this, (Class) (Class<? extends EventCharacteristic.Cancellable>) eventType, parentListeners)
+                    var bus = Cancellable.class.isAssignableFrom(eventType)
+                            ? new CancellableEventBusImpl<>(this, (Class) (Class<? extends Cancellable>) eventType, parentListeners)
                             : new EventBusImpl<>(this, eventType, parentListeners);
 
                     for (var parent : parents) {

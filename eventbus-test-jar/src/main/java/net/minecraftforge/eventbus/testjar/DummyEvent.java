@@ -6,9 +6,9 @@
 package net.minecraftforge.eventbus.testjar;
 
 import net.minecraftforge.eventbus.api.bus.EventBus;
-import net.minecraftforge.eventbus.api.event.EventCharacteristic;
 import net.minecraftforge.eventbus.api.event.InheritableEvent;
 import net.minecraftforge.eventbus.api.event.MutableEvent;
+import net.minecraftforge.eventbus.api.event.characteristic.Cancellable;
 import net.minecraftforge.eventbus.testjar.events.Result;
 
 public class DummyEvent extends MutableEvent implements InheritableEvent {
@@ -18,7 +18,7 @@ public class DummyEvent extends MutableEvent implements InheritableEvent {
         public static final EventBus<GoodEvent> BUS = EventBus.create(GoodEvent.class);
     }
     public static class BadEvent extends DummyEvent {}
-    public static class CancellableEvent extends DummyEvent implements EventCharacteristic.Cancellable {}
+    public static class CancellableEvent extends DummyEvent implements Cancellable {}
     public static class ResultEvent extends DummyEvent {
         private Result result = Result.DEFAULT;
 

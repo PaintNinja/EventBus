@@ -2,7 +2,7 @@ package net.minecraftforge.eventbus.internal;
 
 import net.minecraftforge.eventbus.api.bus.CancellableEventBus;
 import net.minecraftforge.eventbus.api.event.Event;
-import net.minecraftforge.eventbus.api.event.EventCharacteristic;
+import net.minecraftforge.eventbus.api.event.characteristic.Cancellable;
 import net.minecraftforge.eventbus.api.listener.EventListener;
 import net.minecraftforge.eventbus.api.listener.ObjBooleanBiConsumer;
 import net.minecraftforge.eventbus.api.listener.SubscribeEvent;
@@ -65,7 +65,7 @@ final class EventListenerFactory {
 
             if (paramCount == 1) {
                 if (returnType == void.class) {
-                    if (EventCharacteristic.Cancellable.class.isAssignableFrom(eventType)) {
+                    if (Cancellable.class.isAssignableFrom(eventType)) {
                         // Consumer<Event & EventCharacteristic.Cancellable>
                         var eventBus = ((CancellableEventBus) busGroup.getOrCreateEventBus(eventType));
                         if (subscribeEventAnnotation.alwaysCancelling()) {
@@ -81,7 +81,7 @@ final class EventListenerFactory {
                     }
                 } else if (returnType == boolean.class) {
                     // Predicate<Event & EventCharacteristic.Cancellable>
-                    if (!EventCharacteristic.Cancellable.class.isAssignableFrom(eventType))
+                    if (!Cancellable.class.isAssignableFrom(eventType))
                         throw new IllegalArgumentException();
 
                     if (subscribeEventAnnotation.alwaysCancelling())

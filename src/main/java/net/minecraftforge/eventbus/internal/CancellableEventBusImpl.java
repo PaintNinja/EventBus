@@ -3,14 +3,13 @@ package net.minecraftforge.eventbus.internal;
 import net.minecraftforge.eventbus.api.bus.BusGroup;
 import net.minecraftforge.eventbus.api.event.Event;
 import net.minecraftforge.eventbus.api.bus.CancellableEventBus;
-import net.minecraftforge.eventbus.api.event.EventCharacteristic;
+import net.minecraftforge.eventbus.api.event.characteristic.Cancellable;
 import net.minecraftforge.eventbus.api.listener.EventListener;
 import net.minecraftforge.eventbus.api.listener.ObjBooleanBiConsumer;
 import net.minecraftforge.eventbus.api.listener.Priority;
 
 import java.lang.invoke.CallSite;
 import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MutableCallSite;
 import java.lang.invoke.VolatileCallSite;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -19,7 +18,7 @@ import java.util.function.Predicate;
 
 import static net.minecraftforge.eventbus.internal.Constants.*;
 
-public record CancellableEventBusImpl<T extends Event & EventCharacteristic.Cancellable>(
+public record CancellableEventBusImpl<T extends Event & Cancellable>(
         String busGroupName,
         Class<T> eventType,
         CallSite invokerCallSite,

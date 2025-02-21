@@ -6,7 +6,7 @@
 package net.minecraftforge.eventbus.test.general;
 
 import net.minecraftforge.eventbus.api.bus.BusGroup;
-import net.minecraftforge.eventbus.api.event.EventCharacteristic;
+import net.minecraftforge.eventbus.api.event.characteristic.SelfPosting;
 import net.minecraftforge.eventbus.api.listener.SubscribeEvent;
 import net.minecraftforge.eventbus.api.bus.EventBus;
 import net.minecraftforge.eventbus.api.event.RecordEvent;
@@ -36,7 +36,7 @@ public class InterfaceEventHandler implements ITestHandler {
         assertEquals(expected, hit, name + " did not behave correctly");
     }
 
-    public record DummyEvent() implements RecordEvent, EventCharacteristic.SelfPosting<DummyEvent> {
+    public record DummyEvent() implements RecordEvent, SelfPosting<DummyEvent> {
         public static final EventBus<DummyEvent> BUS = EventBus.create(DummyEvent.class);
 
         @Override

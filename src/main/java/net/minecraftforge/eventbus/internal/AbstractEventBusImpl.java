@@ -2,7 +2,8 @@ package net.minecraftforge.eventbus.internal;
 
 import net.minecraftforge.eventbus.api.bus.EventBus;
 import net.minecraftforge.eventbus.api.event.Event;
-import net.minecraftforge.eventbus.api.event.EventCharacteristic;
+import net.minecraftforge.eventbus.api.event.characteristic.MonitorAware;
+import net.minecraftforge.eventbus.api.event.characteristic.SelfDestructing;
 import net.minecraftforge.eventbus.api.listener.EventListener;
 import net.minecraftforge.eventbus.api.listener.Priority;
 
@@ -27,10 +28,10 @@ public sealed interface AbstractEventBusImpl<T extends Event, I> extends EventBu
     static int computeEventCharacteristics(Class<?> eventType) {
         int characteristics = 0;
 
-        if (EventCharacteristic.SelfDestructing.class.isAssignableFrom(eventType))
+        if (SelfDestructing.class.isAssignableFrom(eventType))
             characteristics |= Constants.CHARACTERISTIC_SELF_DESTRUCTING;
 
-        if (EventCharacteristic.MonitorAware.class.isAssignableFrom(eventType))
+        if (MonitorAware.class.isAssignableFrom(eventType))
             characteristics |= Constants.CHARACTERISTIC_MONITOR_AWARE;
 
         return characteristics;

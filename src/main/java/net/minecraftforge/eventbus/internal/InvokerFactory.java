@@ -1,8 +1,8 @@
 package net.minecraftforge.eventbus.internal;
 
 import net.minecraftforge.eventbus.api.event.Event;
-import net.minecraftforge.eventbus.api.event.EventCharacteristic;
 import net.minecraftforge.eventbus.api.event.MutableEvent;
+import net.minecraftforge.eventbus.api.event.characteristic.Cancellable;
 import net.minecraftforge.eventbus.api.listener.EventListener;
 import net.minecraftforge.eventbus.api.listener.ObjBooleanBiConsumer;
 
@@ -14,7 +14,7 @@ import java.util.function.Predicate;
 /**
  * Holds static methods for creating specialised invokers from a list of listeners based on the event's characteristics
  * and the listeners' capabilities, to maximise performance.
- * <p>For instance, if an event implements {@link EventCharacteristic.Cancellable} but none of the listeners are
+ * <p>For instance, if an event implements {@link Cancellable} but none of the listeners are
  * capable of cancelling the event, we can unwrap them from their predicates, skip checking for cancelled and treat it
  * as if the event isn't cancellable.</p>
  */
@@ -99,7 +99,7 @@ final class InvokerFactory {
         }
     }
 
-    static <T extends Event & EventCharacteristic.Cancellable> Predicate<T> createCancellableMonitoringInvoker(
+    static <T extends Event & Cancellable> Predicate<T> createCancellableMonitoringInvoker(
             Class<T> eventType,
             int eventCharacteristics,
             List<EventListener> listeners,
@@ -165,7 +165,7 @@ final class InvokerFactory {
         return createInvokerFromUnwrapped((List<Consumer<T>>) (List) InvokerFactoryUtils.unwrapConsumers(listeners));
     }
 
-    private static <T extends Event & EventCharacteristic.Cancellable> Predicate<T> createCancellableInvoker(List<EventListener> listeners) {
+    private static <T extends Event & Cancellable> Predicate<T> createCancellableInvoker(List<EventListener> listeners) {
         // If none of the listeners are able to cancel the event, we can remove the overhead of checking for cancellation entirely
         // by treating it like a non-cancellable event.
         if (listeners.stream().allMatch(EventListenerImpl.WrappedConsumerListener.class::isInstance)) {
@@ -236,7 +236,7 @@ final class InvokerFactory {
      * Same as {@link #createInvokerFromUnwrapped(List)} but returns a {@link Predicate} instead of a {@link Consumer}.
      * <p>See the code comments inside {@link #createCancellableInvoker(List)} for an explainer as to why this exists.</p>
      */
-    private static <T extends Event & EventCharacteristic.Cancellable> Predicate<T> createCancellableInvokerFromUnwrappedNoChecks(List<Consumer<T>> listeners) {
+    private static <T extends Event & Cancellable> Predicate<T> createCancellableInvokerFromUnwrappedNoChecks(List<Consumer<T>> listeners) {
         return switch (listeners.size()) {
             case 0 -> Constants.getNoOpPredicate();
             case 1 -> {
@@ -294,7 +294,7 @@ final class InvokerFactory {
         };
     }
 
-    private static <T extends Event & EventCharacteristic.Cancellable> Predicate<T> createCancellableInvokerFromUnwrapped(List<Predicate<T>> listeners) {
+    private static <T extends Event & Cancellable> Predicate<T> createCancellableInvokerFromUnwrapped(List<Predicate<T>> listeners) {
         return switch (listeners.size()) {
             case 0 -> Constants.getNoOpPredicate();
             case 1 -> listeners.getFirst(); // Direct call

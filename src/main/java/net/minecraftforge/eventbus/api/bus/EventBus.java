@@ -1,7 +1,7 @@
 package net.minecraftforge.eventbus.api.bus;
 
 import net.minecraftforge.eventbus.api.event.Event;
-import net.minecraftforge.eventbus.api.event.EventCharacteristic;
+import net.minecraftforge.eventbus.api.event.characteristic.Cancellable;
 import net.minecraftforge.eventbus.api.listener.EventListener;
 import net.minecraftforge.eventbus.api.listener.Priority;
 import net.minecraftforge.eventbus.internal.AbstractEventBusImpl;
@@ -42,7 +42,7 @@ public sealed interface EventBus<T extends Event> permits CancellableEventBus, A
 
     /**
      * @param event The instance of this event to post to listeners
-     * @return {@code true} if the event implements {@link EventCharacteristic.Cancellable} and the event was cancelled
+     * @return {@code true} if the event implements {@link Cancellable} and the event was cancelled
      *         by a listener
      */
     boolean post(T event);
