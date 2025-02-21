@@ -81,6 +81,9 @@ public record BusGroupImpl(
             throw new IllegalArgumentException("EventBus for " + eventType + " already exists on BusGroup \"" + name + "\"");
         }
 
+        if (RecordEvent.class.isAssignableFrom(eventType) && !eventType.isRecord())
+            throw new IllegalArgumentException("Event type " + eventType + " is not a record class but implements RecordEvent");
+
         List<EventBus<?>> parents = getParentEvents(eventType);
 
         var parentListeners = new ArrayList<EventListener>();

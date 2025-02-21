@@ -51,7 +51,7 @@ public class NonPublicEventHandler implements ITestHandler {
         assertEquals(expected, hit, name + " did not behave correctly");
     }
 
-    public record TestEvent() implements RecordEvent<TestEvent> {}
+    public record TestEvent() implements RecordEvent {}
 
     public static class PUBLIC {
         @SubscribeEvent

@@ -32,7 +32,7 @@ public class EventFiringEventTest implements ITestHandler {
         assertTrue(handled2.get(), "handled Event2");
     }
 
-    public record Event1() implements RecordEvent<Event1>, EventCharacteristic.SelfPosting<Event1> {
+    public record Event1() implements RecordEvent, EventCharacteristic.SelfPosting<Event1> {
         public static final EventBus<Event1> BUS = EventBus.create(Event1.class);
 
         @Override
@@ -41,7 +41,7 @@ public class EventFiringEventTest implements ITestHandler {
         }
     }
 
-    public record Event2() implements RecordEvent<Event2>, EventCharacteristic.SelfPosting<Event2> {
+    public record Event2() implements RecordEvent, EventCharacteristic.SelfPosting<Event2> {
         public static final EventBus<Event2> BUS = EventBus.create(Event2.class);
 
         @Override

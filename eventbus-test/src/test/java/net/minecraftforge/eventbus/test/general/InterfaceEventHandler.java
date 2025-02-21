@@ -36,7 +36,7 @@ public class InterfaceEventHandler implements ITestHandler {
         assertEquals(expected, hit, name + " did not behave correctly");
     }
 
-    public record DummyEvent() implements RecordEvent<DummyEvent>, EventCharacteristic.SelfPosting<DummyEvent> {
+    public record DummyEvent() implements RecordEvent, EventCharacteristic.SelfPosting<DummyEvent> {
         public static final EventBus<DummyEvent> BUS = EventBus.create(DummyEvent.class);
 
         @Override
