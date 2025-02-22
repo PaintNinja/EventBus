@@ -12,12 +12,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public record BusGroupImpl(
         String name,
+        Class<?> baseType,
         ConcurrentHashMap<Class<? extends Event>, EventBus<?>> eventBuses
 ) implements BusGroup {
     private static final Set<String> BUS_GROUP_NAMES = ConcurrentHashMap.newKeySet();
 
-    public BusGroupImpl(String name) {
-        this(name, new ConcurrentHashMap<>());
+    public BusGroupImpl(String name, Class<?> baseType) {
+        this(name, baseType, new ConcurrentHashMap<>());
     }
 
     public BusGroupImpl {
@@ -74,6 +75,9 @@ public record BusGroupImpl(
     //region Internal access only
     @SuppressWarnings("unchecked")
     private <T extends Event> EventBus<T> createEventBus(Class<T> eventType) {
+        if (baseType != Event.class && !baseType.isAssignableFrom(eventType))
+            throw new IllegalArgumentException("BusGroup \"" + name + "\" requires all events on it to inherit from " + baseType + " but " + eventType + " doesn't.");
+
         if (InheritableEvent.class.isAssignableFrom(eventType)) {
             var maybeEventBus = eventBuses.get(eventType);
             if (maybeEventBus != null)
@@ -131,8 +135,6 @@ public record BusGroupImpl(
         // first handle class inheritance (e.g. MyEvent extends ParentEvent)
         Class<? super T> parent = eventType.getSuperclass();
         if (parent != null // has a parent that's not Object
-                && parent != MutableEvent.class // the parent isn't exactly MutableEvent
-                && parent != InheritableEvent.class // the parent isn't exactly InheritableEvent
                 && InheritableEvent.class.isAssignableFrom(parent) // implements InheritableEvent
                 && !parent.isAnnotationPresent(MarkerEvent.class) // the parent hasn't opted out of listener inheritance
         ) {
