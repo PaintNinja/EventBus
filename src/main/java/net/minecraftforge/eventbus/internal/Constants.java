@@ -14,8 +14,8 @@ import java.util.logging.Logger;
 final class Constants {
     private Constants() {}
 
-    private static final Consumer<Event> NO_OP_CONSUMER = event -> {};
-    private static final Predicate<Event> NO_OP_PREDICATE = event -> false;
+    static final Consumer<Event> NO_OP_CONSUMER = event -> {};
+    static final Predicate<Event> NO_OP_PREDICATE = event -> false;
 
     static final MethodHandle MH_NULL_CONSUMER = MethodHandles.constant(Consumer.class, null);
     static final MethodHandle MH_NO_OP_CONSUMER = MethodHandles.constant(Consumer.class, NO_OP_CONSUMER);
@@ -27,6 +27,8 @@ final class Constants {
 
     static final int CHARACTERISTIC_SELF_DESTRUCTING = 1;
     static final int CHARACTERISTIC_MONITOR_AWARE = 2;
+    static final int CHARACTERISTIC_CANCELLABLE = 4;
+    static final int CHARACTERISTIC_INHERITABLE = 8;
 
     /**
      * If true, allows the same listener to be registered multiple times. Intended for use in benchmarks only.

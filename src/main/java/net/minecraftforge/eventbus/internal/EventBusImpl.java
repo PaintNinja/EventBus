@@ -1,6 +1,5 @@
 package net.minecraftforge.eventbus.internal;
 
-import net.minecraftforge.eventbus.api.bus.BusGroup;
 import net.minecraftforge.eventbus.api.event.Event;
 import net.minecraftforge.eventbus.api.bus.EventBus;
 import net.minecraftforge.eventbus.api.listener.EventListener;
@@ -26,10 +25,6 @@ public record EventBusImpl<T extends Event>(
         AtomicBoolean shutdownFlag,
         int eventCharacteristics
 ) implements EventBus<T>, AbstractEventBusImpl<T, Consumer<T>> {
-    public EventBusImpl(BusGroup busGroup, Class<T> eventType, List<EventListener> backingList) {
-        this(busGroup.name(), eventType, backingList, AbstractEventBusImpl.computeEventCharacteristics(eventType));
-    }
-
     public EventBusImpl(String busGroupName, Class<T> eventType, List<EventListener> backingList, int eventCharacteristics) {
         this(
                 busGroupName,
@@ -37,7 +32,7 @@ public record EventBusImpl<T extends Event>(
                 new VolatileCallSite(backingList.isEmpty() ? MH_NO_OP_CONSUMER : MH_NULL_CONSUMER),
                 backingList,
                 new HashSet<>(),
-                AbstractEventBusImpl.makeEventChildrenList(eventType),
+                AbstractEventBusImpl.makeEventChildrenList(eventType, eventCharacteristics),
                 new AtomicBoolean(),
                 new AtomicBoolean(),
                 eventCharacteristics

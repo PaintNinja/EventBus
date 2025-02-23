@@ -78,39 +78,35 @@ public record BusGroupImpl(
         if (baseType != Event.class && !baseType.isAssignableFrom(eventType))
             throw new IllegalArgumentException("BusGroup \"" + name + "\" requires all events on it to inherit from " + baseType + " but " + eventType + " doesn't.");
 
-        if (InheritableEvent.class.isAssignableFrom(eventType)) {
-            var maybeEventBus = eventBuses.get(eventType);
-            if (maybeEventBus != null)
-                return (EventBus<T>) maybeEventBus;
-        } else if (eventBuses.containsKey(eventType)) {
-            throw new IllegalArgumentException("EventBus for " + eventType + " already exists on BusGroup \"" + name + "\"");
-        }
+//        if (eventBuses.containsKey(eventType))
+//            throw new IllegalArgumentException("EventBus for " + eventType + " already exists on BusGroup \"" + name + "\"");
 
         if (RecordEvent.class.isAssignableFrom(eventType) && !eventType.isRecord())
             throw new IllegalArgumentException("Event type " + eventType + " is not a record class but implements RecordEvent");
 
-        List<EventBus<?>> parents = getParentEvents(eventType);
+        int characteristics = AbstractEventBusImpl.computeEventCharacteristics(eventType);
 
-        var parentListeners = new ArrayList<EventListener>();
-        for (var parent : parents) {
-            parentListeners.addAll(((AbstractEventBusImpl<?, ?>) parent).backingList());
+        var backingList = new ArrayList<EventListener>();
+        List<EventBus<?>> parents = Collections.emptyList();
+        if ((characteristics & Constants.CHARACTERISTIC_INHERITABLE) != 0) {
+            parents = getParentEvents(eventType);
+            for (var parent : parents) {
+                backingList.addAll(((AbstractEventBusImpl<?, ?>) parent).backingList());
+            }
         }
 
-//        return (EventBus<T>) eventBuses.computeIfAbsent(
-//                eventType,
-//                event -> {
-                    @SuppressWarnings("rawtypes") // Raw types are unavoidable due to limitations in Java's type system.
-                    var bus = Cancellable.class.isAssignableFrom(eventType)
-                            ? new CancellableEventBusImpl<>(this, (Class) (Class<? extends Cancellable>) eventType, parentListeners)
-                            : new EventBusImpl<>(this, eventType, parentListeners);
+        @SuppressWarnings("rawtypes")
+        var bus = (characteristics & Constants.CHARACTERISTIC_CANCELLABLE) != 0
+                ? new CancellableEventBusImpl<>(this.name, (Class) (Class<? extends Cancellable>) eventType, backingList, characteristics)
+                : new EventBusImpl<>(this.name, eventType, backingList, characteristics);
 
-                    for (var parent : parents) {
-                        ((AbstractEventBusImpl<?, ?>) parent).children().add(bus);
-                    }
+        if ((characteristics & Constants.CHARACTERISTIC_INHERITABLE) != 0) {
+            for (var parent : parents) {
+                ((AbstractEventBusImpl<?, ?>) parent).children().add(bus);
+            }
+        }
 
-                    return bus;
-//                }
-//        );
+        return bus;
     }
 
     @SuppressWarnings("unchecked")

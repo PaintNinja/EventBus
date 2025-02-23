@@ -1,6 +1,5 @@
 package net.minecraftforge.eventbus.internal;
 
-import net.minecraftforge.eventbus.api.bus.BusGroup;
 import net.minecraftforge.eventbus.api.event.Event;
 import net.minecraftforge.eventbus.api.bus.CancellableEventBus;
 import net.minecraftforge.eventbus.api.event.characteristic.Cancellable;
@@ -29,10 +28,6 @@ public record CancellableEventBusImpl<T extends Event & Cancellable>(
         AtomicBoolean shutdownFlag,
         int eventCharacteristics
 ) implements CancellableEventBus<T>, AbstractEventBusImpl<T, Predicate<T>> {
-    public CancellableEventBusImpl(BusGroup busGroup, Class<T> eventType, List<EventListener> backingList) {
-        this(busGroup.name(), eventType, backingList, AbstractEventBusImpl.computeEventCharacteristics(eventType));
-    }
-
     public CancellableEventBusImpl(String busGroupName, Class<T> eventType, List<EventListener> backingList, int eventCharacteristics) {
         this(
                 busGroupName,
@@ -40,7 +35,7 @@ public record CancellableEventBusImpl<T extends Event & Cancellable>(
                 new VolatileCallSite(backingList.isEmpty() ? MH_NO_OP_PREDICATE : MH_NULL_PREDICATE),
                 backingList,
                 new HashSet<>(),
-                AbstractEventBusImpl.makeEventChildrenList(eventType),
+                AbstractEventBusImpl.makeEventChildrenList(eventType, eventCharacteristics),
                 new AtomicBoolean(),
                 new AtomicBoolean(),
                 eventCharacteristics

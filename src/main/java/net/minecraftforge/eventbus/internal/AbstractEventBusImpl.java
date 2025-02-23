@@ -2,16 +2,14 @@ package net.minecraftforge.eventbus.internal;
 
 import net.minecraftforge.eventbus.api.bus.EventBus;
 import net.minecraftforge.eventbus.api.event.Event;
+import net.minecraftforge.eventbus.api.event.InheritableEvent;
 import net.minecraftforge.eventbus.api.event.characteristic.MonitorAware;
 import net.minecraftforge.eventbus.api.event.characteristic.SelfDestructing;
 import net.minecraftforge.eventbus.api.listener.EventListener;
 import net.minecraftforge.eventbus.api.listener.Priority;
 
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public sealed interface AbstractEventBusImpl<T extends Event, I> extends EventBus<T>
@@ -34,15 +32,23 @@ public sealed interface AbstractEventBusImpl<T extends Event, I> extends EventBu
         if (MonitorAware.class.isAssignableFrom(eventType))
             characteristics |= Constants.CHARACTERISTIC_MONITOR_AWARE;
 
+        if (InheritableEvent.class.isAssignableFrom(eventType))
+            characteristics |= Constants.CHARACTERISTIC_INHERITABLE;
+
         return characteristics;
     }
 
-    static List<AbstractEventBusImpl<?, ?>> makeEventChildrenList(Class<?> eventType) {
-        if (eventType.isSealed())
-            return new ArrayList<>(eventType.getPermittedSubclasses().length);
+    /**
+     * Creates a pre-sized list for possible children of this event.
+     */
+    static List<AbstractEventBusImpl<?, ?>> makeEventChildrenList(Class<?> eventType, int eventCharacteristics) {
+        if ((eventCharacteristics & Constants.CHARACTERISTIC_INHERITABLE) == 0 || Modifier.isFinal(eventType.getModifiers()))
+            return Collections.emptyList(); // If the event isn't inheritable, don't factor in any children
 
-        if (Modifier.isFinal(eventType.getModifiers()))
-            return Collections.emptyList();
+        // If it's inheritable and sealed, we can pre-size the list based on the number of permitted subclasses
+        var permittedSubclasses = eventType.getPermittedSubclasses();
+        if (permittedSubclasses != null)
+            return new ArrayList<>(permittedSubclasses.length);
 
         return new ArrayList<>();
     }
@@ -56,6 +62,10 @@ public sealed interface AbstractEventBusImpl<T extends Event, I> extends EventBu
 
             if (added) {
                 invalidateInvoker();
+
+                if (notInheritable())
+                    return listener;
+
                 for (var child : children()) {
                     child.addListener(listener);
                 }
@@ -73,6 +83,10 @@ public sealed interface AbstractEventBusImpl<T extends Event, I> extends EventBu
 
             if (removed) {
                 invalidateInvoker();
+
+                if (notInheritable())
+                    return;
+
                 for (var child : children()) {
                     child.removeListener(listener);
                 }
@@ -146,5 +160,9 @@ public sealed interface AbstractEventBusImpl<T extends Event, I> extends EventBu
                 arrayList.trimToSize();
         }
         children().forEach(AbstractEventBusImpl::dispose);
+    }
+
+    private boolean notInheritable() {
+        return (eventCharacteristics() & Constants.CHARACTERISTIC_INHERITABLE) == 0;
     }
 }
