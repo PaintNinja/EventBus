@@ -8,7 +8,6 @@ import net.minecraftforge.eventbus.api.listener.Priority;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-@SuppressWarnings("rawtypes") // Implementing full generics for this in Java is difficult with little benefit
 public sealed interface EventListenerImpl extends EventListener {
     /**
      * @implNote This is a String instead of a BusGroup to avoid a circular hard reference between this and BusGroup.

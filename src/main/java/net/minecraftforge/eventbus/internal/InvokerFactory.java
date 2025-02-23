@@ -124,19 +124,19 @@ final class InvokerFactory {
                 var firstMonitor = unwrappedMonitors.iterator().next();
                 return event -> {
                     boolean cancelled = cancellableInvoker.test(event);
-                    ((MutableEvent) event).isMonitoring = true;
+                    ((MutableEventInternals) event).isMonitoring = true;
                     firstMonitor.accept(event, cancelled);
-                    ((MutableEvent) event).isMonitoring = false;
+                    ((MutableEventInternals) event).isMonitoring = false;
                     return cancelled;
                 };
             } else {
                 return event -> {
                     boolean cancelled = cancellableInvoker.test(event);
-                    ((MutableEvent) event).isMonitoring = true;
+                    ((MutableEventInternals) event).isMonitoring = true;
                     for (var monitor : unwrappedMonitors) {
                         monitor.accept(event, cancelled);
                     }
-                    ((MutableEvent) event).isMonitoring = false;
+                    ((MutableEventInternals) event).isMonitoring = false;
                     return cancelled;
                 };
             }

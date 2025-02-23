@@ -8,7 +8,6 @@ import net.minecraftforge.eventbus.api.listener.Priority;
 
 import java.lang.invoke.CallSite;
 import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MutableCallSite;
 import java.lang.invoke.VolatileCallSite;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
