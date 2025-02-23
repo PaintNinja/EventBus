@@ -21,14 +21,14 @@ public record CancellableEventBusImpl<T extends Event & Cancellable>(
         String busGroupName,
         Class<T> eventType,
         CallSite invokerCallSite,
-        List<EventListener> backingList,
+        ArrayList<EventListener> backingList,
         Set<EventListener> monitorBackingSet,
         List<AbstractEventBusImpl<?, ?>> children,
         AtomicBoolean alreadyInvalidated,
         AtomicBoolean shutdownFlag,
         int eventCharacteristics
 ) implements CancellableEventBus<T>, AbstractEventBusImpl<T, Predicate<T>> {
-    public CancellableEventBusImpl(String busGroupName, Class<T> eventType, List<EventListener> backingList, int eventCharacteristics) {
+    public CancellableEventBusImpl(String busGroupName, Class<T> eventType, ArrayList<EventListener> backingList, int eventCharacteristics) {
         this(
                 busGroupName,
                 eventType,

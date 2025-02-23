@@ -47,6 +47,14 @@ public sealed interface BusGroup permits BusGroupImpl {
     void dispose();
 
     /**
+     * Experimental feature - may be removed, renamed or otherwise changed without notice.
+     * <p>Trims the backing lists of all EventBus instances associated with this BusGroup to free up resources.</p>
+     * <p>Warning: This is only intended to be called <b>once</b> after all listeners are registered - calling this
+     * repeatedly may hurt performance.</p>
+     */
+    void trim();
+
+    /**
      * Registers all static methods annotated with {@link SubscribeEvent} in the given class.
      *
      * @param callerLookup {@code MethodHandles.lookup()} from the class containing listeners

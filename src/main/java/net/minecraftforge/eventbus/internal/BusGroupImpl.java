@@ -48,6 +48,12 @@ public record BusGroupImpl(
     }
 
     @Override
+    public void trim() {
+        for (var eventBus : eventBuses.values())
+            ((AbstractEventBusImpl<?, ?>) eventBus).trim();
+    }
+
+    @Override
     public Collection<EventListener> register(MethodHandles.Lookup callerLookup, Class<?> utilityClassWithStaticListeners) {
         return EventListenerFactory.register(this, callerLookup, utilityClassWithStaticListeners, null);
     }

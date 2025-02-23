@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public sealed interface AbstractEventBusImpl<T extends Event, I> extends EventBus<T>
         permits CancellableEventBusImpl, EventBusImpl {
     //region Record component accessors
-    List<EventListener> backingList();
+    ArrayList<EventListener> backingList();
     Set<EventListener> monitorBackingSet();
     List<AbstractEventBusImpl<?, ?>> children();
     AtomicBoolean shutdownFlag();
@@ -156,10 +156,15 @@ public sealed interface AbstractEventBusImpl<T extends Event, I> extends EventBu
             backingList().clear();
             monitorBackingSet().clear();
 
-            if (backingList() instanceof ArrayList<?> arrayList)
-                arrayList.trimToSize();
+            backingList().trimToSize();
         }
         children().forEach(AbstractEventBusImpl::dispose);
+    }
+
+    default void trim() {
+        synchronized (backingList()) {
+            backingList().trimToSize();
+        }
     }
 
     private boolean notInheritable() {
