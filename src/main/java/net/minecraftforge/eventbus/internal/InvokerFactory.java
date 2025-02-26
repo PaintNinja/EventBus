@@ -160,10 +160,12 @@ final class InvokerFactory {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private static <T extends Event> Consumer<T> createInvoker(List<EventListener> listeners) {
         return createInvokerFromUnwrapped((List<Consumer<T>>) (List) InvokerFactoryUtils.unwrapConsumers(listeners));
     }
 
+    @SuppressWarnings("unchecked")
     private static <T extends Event & Cancellable> Predicate<T> createCancellableInvoker(List<EventListener> listeners) {
         // If none of the listeners are able to cancel the event, we can remove the overhead of checking for cancellation entirely
         // by treating it like a non-cancellable event.

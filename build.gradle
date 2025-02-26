@@ -1,12 +1,10 @@
 import net.minecraftforge.gradleutils.PomUtils
 
 plugins {
-    id 'eclipse'
     id 'java-library'
     id 'maven-publish'
-    id 'com.github.ben-manes.versions' version '0.50.0'
-    id 'org.gradlex.extra-java-module-info' version '1.8'
-    id 'net.minecraftforge.gradleutils' version '2.3.3'
+    id 'org.gradlex.extra-java-module-info' version '1.11'
+    id 'net.minecraftforge.gradleutils' version '2.3.6'
     id 'net.minecraftforge.licenser' version '1.0.1'
 }
 
