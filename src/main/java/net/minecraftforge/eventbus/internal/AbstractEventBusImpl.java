@@ -2,6 +2,7 @@ package net.minecraftforge.eventbus.internal;
 
 import net.minecraftforge.eventbus.api.bus.EventBus;
 import net.minecraftforge.eventbus.api.event.InheritableEvent;
+import net.minecraftforge.eventbus.api.event.characteristic.Cancellable;
 import net.minecraftforge.eventbus.api.event.characteristic.MonitorAware;
 import net.minecraftforge.eventbus.api.event.characteristic.SelfDestructing;
 import net.minecraftforge.eventbus.api.listener.EventListener;
@@ -30,6 +31,9 @@ public sealed interface AbstractEventBusImpl<T extends Event, I> extends EventBu
 
         if (MonitorAware.class.isAssignableFrom(eventType))
             characteristics |= Constants.CHARACTERISTIC_MONITOR_AWARE;
+
+        if (Cancellable.class.isAssignableFrom(eventType))
+            characteristics |= Constants.CHARACTERISTIC_CANCELLABLE;
 
         if (InheritableEvent.class.isAssignableFrom(eventType))
             characteristics |= Constants.CHARACTERISTIC_INHERITABLE;
