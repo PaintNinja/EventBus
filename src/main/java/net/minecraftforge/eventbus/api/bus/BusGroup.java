@@ -1,6 +1,6 @@
 package net.minecraftforge.eventbus.api.bus;
 
-import net.minecraftforge.eventbus.api.event.Event;
+import net.minecraftforge.eventbus.internal.Event;
 import net.minecraftforge.eventbus.api.listener.EventListener;
 import net.minecraftforge.eventbus.api.listener.SubscribeEvent;
 import net.minecraftforge.eventbus.internal.BusGroupImpl;

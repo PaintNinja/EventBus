@@ -1,6 +1,6 @@
 package net.minecraftforge.eventbus.api.event.characteristic;
 
-import net.minecraftforge.eventbus.api.event.Event;
+import net.minecraftforge.eventbus.internal.Event;
 
 /**
  * There are a number of optional characteristics that an {@link Event} can have which may influence their behaviour

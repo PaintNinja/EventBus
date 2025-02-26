@@ -1,7 +1,6 @@
 package net.minecraftforge.eventbus.internal;
 
 import net.minecraftforge.eventbus.api.bus.EventBus;
-import net.minecraftforge.eventbus.api.event.Event;
 import net.minecraftforge.eventbus.api.event.InheritableEvent;
 import net.minecraftforge.eventbus.api.event.characteristic.MonitorAware;
 import net.minecraftforge.eventbus.api.event.characteristic.SelfDestructing;

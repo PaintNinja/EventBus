@@ -1,6 +1,6 @@
 package net.minecraftforge.eventbus.api.bus;
 
-import net.minecraftforge.eventbus.api.event.Event;
+import net.minecraftforge.eventbus.internal.Event;
 import net.minecraftforge.eventbus.api.event.characteristic.Cancellable;
 import net.minecraftforge.eventbus.api.listener.EventListener;
 import net.minecraftforge.eventbus.api.listener.ObjBooleanBiConsumer;
@@ -58,10 +58,12 @@ public sealed interface CancellableEventBus<T extends Event & Cancellable>
 
     EventListener addListener(ObjBooleanBiConsumer<T> listener);
 
+    @SuppressWarnings("ClassEscapesDefinedScope") // E can be a subtype of Event which is publicly accessible
     static <T extends Event & Cancellable> CancellableEventBus<T> create(Class<T> eventType) {
         return create(BusGroup.DEFAULT, eventType);
     }
 
+    @SuppressWarnings("ClassEscapesDefinedScope") // E can be a subtype of Event which is publicly accessible
     static <T extends Event & Cancellable> CancellableEventBus<T> create(BusGroup busGroup, Class<T> eventType) {
         return (CancellableEventBus<T>) ((BusGroupImpl) busGroup).getOrCreateEventBus(eventType);
     }

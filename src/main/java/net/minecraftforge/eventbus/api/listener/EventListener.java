@@ -2,7 +2,7 @@ package net.minecraftforge.eventbus.api.listener;
 
 import net.minecraftforge.eventbus.api.bus.CancellableEventBus;
 import net.minecraftforge.eventbus.api.bus.EventBus;
-import net.minecraftforge.eventbus.api.event.Event;
+import net.minecraftforge.eventbus.internal.Event;
 import net.minecraftforge.eventbus.internal.EventListenerImpl;
 
 import java.util.function.Consumer;
@@ -17,6 +17,7 @@ import java.util.function.Consumer;
 public sealed interface EventListener permits EventListenerImpl {
     String busGroupName();
 
+    @SuppressWarnings("ClassEscapesDefinedScope") // ? can be a subtype of Event which is publicly accessible
     Class<? extends Event> eventType();
 
     /**

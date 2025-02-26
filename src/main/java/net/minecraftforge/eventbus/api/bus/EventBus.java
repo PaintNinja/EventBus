@@ -1,6 +1,6 @@
 package net.minecraftforge.eventbus.api.bus;
 
-import net.minecraftforge.eventbus.api.event.Event;
+import net.minecraftforge.eventbus.internal.Event;
 import net.minecraftforge.eventbus.api.event.characteristic.Cancellable;
 import net.minecraftforge.eventbus.api.listener.EventListener;
 import net.minecraftforge.eventbus.api.listener.Priority;
@@ -70,6 +70,7 @@ public sealed interface EventBus<T extends Event> permits CancellableEventBus, A
      * </p>
      * @apiNote There can only be one EventBus instance per event type per BusGroup.
      */
+    @SuppressWarnings("ClassEscapesDefinedScope") // E can be a subtype of Event which is publicly accessible
     static <E extends Event> EventBus<E> create(Class<E> eventType) {
         return create(BusGroup.DEFAULT, eventType);
     }
@@ -82,6 +83,7 @@ public sealed interface EventBus<T extends Event> permits CancellableEventBus, A
      * </p>
      * @apiNote There can only be one EventBus instance per event type per BusGroup.
      */
+    @SuppressWarnings("ClassEscapesDefinedScope") // E can be a subtype of Event which is publicly accessible
     static <E extends Event> EventBus<E> create(BusGroup busGroup, Class<E> eventType) {
         return ((BusGroupImpl) busGroup).getOrCreateEventBus(eventType);
     }

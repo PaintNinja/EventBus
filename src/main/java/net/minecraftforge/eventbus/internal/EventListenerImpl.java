@@ -1,6 +1,5 @@
 package net.minecraftforge.eventbus.internal;
 
-import net.minecraftforge.eventbus.api.event.Event;
 import net.minecraftforge.eventbus.api.listener.EventListener;
 import net.minecraftforge.eventbus.api.listener.ObjBooleanBiConsumer;
 import net.minecraftforge.eventbus.api.listener.Priority;

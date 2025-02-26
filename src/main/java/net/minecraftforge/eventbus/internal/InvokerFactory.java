@@ -1,6 +1,5 @@
 package net.minecraftforge.eventbus.internal;
 
-import net.minecraftforge.eventbus.api.event.Event;
 import net.minecraftforge.eventbus.api.event.MutableEvent;
 import net.minecraftforge.eventbus.api.event.characteristic.Cancellable;
 import net.minecraftforge.eventbus.api.listener.EventListener;
