@@ -12,7 +12,7 @@ plugins {
 
 group = 'net.minecraftforge'
 version = gradleutils.tagOffsetVersion
-print("Version: $version")
+print "Version: $version"
 
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(21)
@@ -37,7 +37,7 @@ changelog {
     from '1.0.0'
 }
 
-jar {
+tasks.named('jar', Jar) {
     manifest {
         attributes([
             'Specification-Title':   'EventBus',
@@ -46,8 +46,11 @@ jar {
             'Implementation-Title':   'EventBus',
             'Implementation-Version': project.version,
             'Implementation-Vendor':  'Forge Development LLC'
-        ] as LinkedHashMap, 'net/minecraftforge/eventbus/service/')
+        ])
     }
+
+    reproducibleFileOrder = true
+    preserveFileTimestamps = false
 }
 
 license {
