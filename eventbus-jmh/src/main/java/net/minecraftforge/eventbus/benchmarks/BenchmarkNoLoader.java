@@ -49,7 +49,8 @@ public class BenchmarkNoLoader {
 
         @State(Scope.Benchmark)
         public static class Mixed {
-            @Param({"12", "100"}) // 1 is not included because that wouldn't be a mix of subscriber types
+//            @Param({"12", "100"}) // 1 is not included because that wouldn't be a mix of subscriber types
+            @Param({"1", "2", "3", "4", "5", "10", "20", "30", "40", "50"})
             private int multiplier;
 
             @Setup(Level.Trial)
@@ -66,7 +67,8 @@ public class BenchmarkNoLoader {
 
         @State(Scope.Benchmark)
         public static class Dynamic {
-            @Param({"1", "12", "100"})
+//            @Param({"1", "12", "100"})
+            @Param({"1", "2", "3", "4", "5", "10", "20", "30", "40", "50"})
             private int multiplier;
 
             @Setup(Level.Trial)
@@ -83,7 +85,8 @@ public class BenchmarkNoLoader {
 
         @State(Scope.Benchmark)
         public static class Lambda {
-            @Param({"1", "12", "100"})
+//            @Param({"1", "12", "100"})
+            @Param({"1", "2", "3", "4", "5", "10", "20", "30", "40", "50"})
             private int multiplier;
 
             @Setup(Level.Trial)
@@ -100,7 +103,8 @@ public class BenchmarkNoLoader {
 
         @State(Scope.Benchmark)
         public static class Static {
-            @Param({"1", "12", "100"})
+//            @Param({"1", "12", "100"})
+            @Param({"1", "2", "3", "4", "5", "10", "20", "30", "40", "50"})
             private int multiplier;
 
             @Setup(Level.Trial)

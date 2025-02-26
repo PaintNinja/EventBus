@@ -1,8 +1,8 @@
-///*
-// * Copyright (c) Forge Development LLC
-// * SPDX-License-Identifier: LGPL-2.1-only
-// */
-//
+/*
+ * Copyright (c) Forge Development LLC
+ * SPDX-License-Identifier: LGPL-2.1-only
+ */
+
 //package net.minecraftforge.eventbus.test;
 //
 //import cpw.mods.jarhandling.SecureJar;
