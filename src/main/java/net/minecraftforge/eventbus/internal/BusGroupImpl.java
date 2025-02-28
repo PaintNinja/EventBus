@@ -75,9 +75,6 @@ public record BusGroupImpl(
                     "the BusGroup#register method.");
 
         for (var listener : listeners) {
-            if (!name.equals(listener.busGroupName()))
-                throw new IllegalArgumentException("Listener does not belong to this BusGroup!");
-
             getOrCreateEventBus((Class<? extends Event>) listener.eventType()).removeListener(listener);
         }
     }

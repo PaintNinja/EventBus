@@ -19,8 +19,6 @@ import java.util.function.Consumer;
  * various conversion operations to different lambda types.</p>
  */
 public sealed interface EventListener permits EventListenerImpl {
-    String busGroupName();
-
     @SuppressWarnings("ClassEscapesDefinedScope") // ? can be a subtype of Event which is publicly accessible
     Class<? extends Event> eventType();
 

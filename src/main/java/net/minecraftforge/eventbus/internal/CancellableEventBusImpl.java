@@ -48,7 +48,7 @@ public record CancellableEventBusImpl<T extends Event & Cancellable>(
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"}) // T extends Event, so this is safe.
     public EventListener addListener(Consumer<T> listener) {
-        return addListener(new EventListenerImpl.WrappedConsumerListener(busGroupName, eventType, Priority.NORMAL, (Consumer<Event>) (Consumer) listener));
+        return addListener(new EventListenerImpl.WrappedConsumerListener(eventType, Priority.NORMAL, (Consumer<Event>) (Consumer) listener));
     }
 
     @Override
@@ -56,8 +56,8 @@ public record CancellableEventBusImpl<T extends Event & Cancellable>(
     public EventListener addListener(byte priority, Consumer<T> listener) {
         return addListener(
                 priority == Priority.MONITOR
-                        ? new EventListenerImpl.MonitoringListener(busGroupName, eventType, (Consumer<Event>) (Consumer) listener)
-                        : new EventListenerImpl.WrappedConsumerListener(busGroupName, eventType, priority, (Consumer<Event>) (Consumer) listener)
+                        ? new EventListenerImpl.MonitoringListener(eventType, (Consumer<Event>) (Consumer) listener)
+                        : new EventListenerImpl.WrappedConsumerListener(eventType, priority, (Consumer<Event>) (Consumer) listener)
         );
     }
 
@@ -74,13 +74,13 @@ public record CancellableEventBusImpl<T extends Event & Cancellable>(
         if (priority == Priority.MONITOR)
             throw new IllegalArgumentException("Monitoring listeners cannot cancel events");
 
-        return addListener(new EventListenerImpl.WrappedConsumerListener(busGroupName, eventType, priority, true, (Consumer<Event>) (Consumer) listener));
+        return addListener(new EventListenerImpl.WrappedConsumerListener(eventType, priority, true, (Consumer<Event>) (Consumer) listener));
     }
 
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"}) // T extends Event, so this is safe
     public EventListener addListener(Predicate<T> listener) {
-        return addListener(new EventListenerImpl.PredicateListener(busGroupName, eventType, Priority.NORMAL, (Predicate<Event>) (Predicate) listener));
+        return addListener(new EventListenerImpl.PredicateListener(eventType, Priority.NORMAL, (Predicate<Event>) (Predicate) listener));
     }
 
     @Override
@@ -89,13 +89,13 @@ public record CancellableEventBusImpl<T extends Event & Cancellable>(
         if (priority == Priority.MONITOR)
             throw new IllegalArgumentException("Monitoring listeners cannot cancel events");
 
-        return addListener(new EventListenerImpl.PredicateListener(busGroupName, eventType, priority, (Predicate<Event>) (Predicate) listener));
+        return addListener(new EventListenerImpl.PredicateListener(eventType, priority, (Predicate<Event>) (Predicate) listener));
     }
 
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"}) // T extends Event, so this is safe
     public EventListener addListener(ObjBooleanBiConsumer<T> monitoringListener) {
-        return addListener(new EventListenerImpl.MonitoringListener(busGroupName, eventType, (ObjBooleanBiConsumer<Event>) (ObjBooleanBiConsumer) monitoringListener));
+        return addListener(new EventListenerImpl.MonitoringListener(eventType, (ObjBooleanBiConsumer<Event>) (ObjBooleanBiConsumer) monitoringListener));
     }
 
     @Override
@@ -136,7 +136,7 @@ public record CancellableEventBusImpl<T extends Event & Cancellable>(
             backingList.sort(PRIORITY_COMPARATOR);
 
             if ((eventCharacteristics() & CHARACTERISTIC_SELF_DESTRUCTING) != 0)
-                monitorBackingSet.add(new EventListenerImpl.MonitoringListener(busGroupName, eventType, (event, wasCancelled) -> dispose()));
+                monitorBackingSet.add(new EventListenerImpl.MonitoringListener(eventType, (event, wasCancelled) -> dispose()));
 
             Predicate<T> invoker = setInvoker(InvokerFactory.createCancellableMonitoringInvoker(
                     eventType, eventCharacteristics, backingList, monitorBackingSet

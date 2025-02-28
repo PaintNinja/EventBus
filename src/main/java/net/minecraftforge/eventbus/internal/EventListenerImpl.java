@@ -12,12 +12,6 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public sealed interface EventListenerImpl extends EventListener {
-    /**
-     * @implNote This is a String instead of a BusGroup to avoid a circular hard reference between this and BusGroup.
-     */
-    @Override
-    String busGroupName();
-
     sealed interface HasConsumer<T> extends EventListenerImpl {
         Consumer<T> consumer();
     }
@@ -27,14 +21,12 @@ public sealed interface EventListenerImpl extends EventListener {
     }
 
     record ConsumerListener(
-            String busGroupName,
             Class<? extends Event> eventType,
             byte priority,
             Consumer<Event> consumer
     ) implements HasConsumer<Event> {}
 
     record PredicateListener(
-            String busGroupName,
             Class<? extends Event> eventType,
             byte priority,
             Predicate<Event> predicate
@@ -45,12 +37,11 @@ public sealed interface EventListenerImpl extends EventListener {
     }
 
     record MonitoringListener(
-            String busGroupName,
             Class<? extends Event> eventType,
             ObjBooleanBiConsumer<Event> booleanBiConsumer
     ) implements EventListenerImpl {
-        public MonitoringListener(String busGroupName, Class<? extends Event> eventType, Consumer<Event> listener) {
-            this(busGroupName, eventType, (event, wasCancelled) -> listener.accept(event));
+        public MonitoringListener(Class<? extends Event> eventType, Consumer<Event> listener) {
+            this(eventType, (event, wasCancelled) -> listener.accept(event));
         }
 
         @Override
@@ -60,19 +51,18 @@ public sealed interface EventListenerImpl extends EventListener {
     }
 
     record WrappedConsumerListener(
-            String busGroupName,
             Class<? extends Event> eventType,
             byte priority,
             boolean alwaysCancelling,
             Consumer<Event> consumer,
             Predicate<Event> predicate
     ) implements HasConsumer<Event>, HasPredicate<Event> {
-        public WrappedConsumerListener(String busGroupName, Class<? extends Event> eventType, byte priority, Consumer<Event> consumer) {
-            this(busGroupName, eventType, priority, false, consumer, wrap(false, consumer));
+        public WrappedConsumerListener(Class<? extends Event> eventType, byte priority, Consumer<Event> consumer) {
+            this(eventType, priority, false, consumer, wrap(false, consumer));
         }
 
-        public WrappedConsumerListener(String busGroupName, Class<? extends Event> eventType, byte priority, boolean alwaysCancelling, Consumer<Event> consumer) {
-            this(busGroupName, eventType, priority, alwaysCancelling, consumer, wrap(alwaysCancelling, consumer));
+        public WrappedConsumerListener(Class<? extends Event> eventType, byte priority, boolean alwaysCancelling, Consumer<Event> consumer) {
+            this(eventType, priority, alwaysCancelling, consumer, wrap(alwaysCancelling, consumer));
         }
 
         public WrappedConsumerListener {
@@ -104,14 +94,12 @@ public sealed interface EventListenerImpl extends EventListener {
                     && this.eventType == that.eventType
                     && this.priority == that.priority
                     && this.alwaysCancelling == that.alwaysCancelling
-                    && this.busGroupName.equals(that.busGroupName)
                     && this.consumer.equals(that.consumer);
         }
 
         @Override
         public int hashCode() {
-            return busGroupName.hashCode()
-                    * 31 + eventType.hashCode()
+            return eventType.hashCode()
                     * 31 + priority
                     * 31 + Boolean.hashCode(alwaysCancelling)
                     * 31 + consumer.hashCode();
