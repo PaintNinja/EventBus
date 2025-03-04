@@ -10,7 +10,9 @@ import net.minecraftforge.eventbus.api.event.InheritableEvent;
 import net.minecraftforge.eventbus.api.event.MutableEvent;
 import net.minecraftforge.eventbus.api.event.characteristic.Cancellable;
 import net.minecraftforge.eventbus.testjar.events.Result;
+import org.jspecify.annotations.NullMarked;
 
+@NullMarked
 public class DummyEvent extends MutableEvent implements InheritableEvent {
     public static final EventBus<DummyEvent> BUS = EventBus.create(DummyEvent.class);
 

@@ -9,6 +9,7 @@ import net.minecraftforge.eventbus.api.event.characteristic.Cancellable;
 import net.minecraftforge.eventbus.api.listener.EventListener;
 import net.minecraftforge.eventbus.api.listener.ObjBooleanBiConsumer;
 import net.minecraftforge.eventbus.api.listener.SubscribeEvent;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.invoke.*;
 import java.lang.reflect.Method;
@@ -37,7 +38,7 @@ final class EventListenerFactory {
     // Todo: make the error messages more descriptive
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static Collection<EventListener> register(BusGroupImpl busGroup, MethodHandles.Lookup callerLookup,
-                                                     Class<?> listenerClass, Object listenerInstance) {
+                                                     Class<?> listenerClass, @Nullable Object listenerInstance) {
         int count = 0;
         Class<?> firstValidListenerEventType = null;
 
@@ -125,8 +126,8 @@ final class EventListenerFactory {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T extends Event> Consumer<T> createConsumer(MethodHandles.Lookup callerLookup,
-                                                                          Method callback, Object instance) {
+    private static <T extends Event> Consumer<T> createConsumer(MethodHandles.Lookup callerLookup, Method callback,
+                                                                @Nullable Object instance) {
         boolean isStatic = Modifier.isStatic(callback.getModifiers());
         var factoryMH = getOrMakeFactory(callerLookup, callback, isStatic, instance, RETURNS_CONSUMER, CONSUMER_FI_TYPE, "accept");
 
@@ -142,8 +143,8 @@ final class EventListenerFactory {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T extends Event> Predicate<T> createPredicate(MethodHandles.Lookup callerLookup,
-                                                                            Method callback, Object instance) {
+    private static <T extends Event> Predicate<T> createPredicate(MethodHandles.Lookup callerLookup, Method callback,
+                                                                  @Nullable Object instance) {
         boolean isStatic = Modifier.isStatic(callback.getModifiers());
         var factoryMH = getOrMakeFactory(callerLookup, callback, isStatic, instance, RETURNS_PREDICATE, PREDICATE_FI_TYPE, "test");
 
@@ -160,7 +161,7 @@ final class EventListenerFactory {
 
     @SuppressWarnings("unchecked")
     private static <T extends Event> ObjBooleanBiConsumer<T> createMonitor(MethodHandles.Lookup callerLookup,
-                                                                                     Method callback, Object instance) {
+                                                                           Method callback, @Nullable Object instance) {
         boolean isStatic = Modifier.isStatic(callback.getModifiers());
         var factoryMH = getOrMakeFactory(callerLookup, callback, isStatic, instance, RETURNS_MONITOR, MONITOR_FI_TYPE, "accept");
 
@@ -176,8 +177,8 @@ final class EventListenerFactory {
     }
 
     private static MethodHandle getOrMakeFactory(MethodHandles.Lookup callerLookup, Method callback, boolean isStatic,
-                                                  Object instance, MethodType factoryReturnType, MethodType fiMethodType,
-                                                  String fiMethodName) {
+                                                 @Nullable Object instance, MethodType factoryReturnType,
+                                                 MethodType fiMethodType, String fiMethodName) {
         if (Constants.ALLOW_DUPE_LISTENERS)
             return makeFactory(callerLookup, callback, isStatic, instance, factoryReturnType, fiMethodType, fiMethodName);
         else
@@ -186,8 +187,8 @@ final class EventListenerFactory {
     }
 
     private static MethodHandle makeFactory(MethodHandles.Lookup callerLookup, Method callback, boolean isStatic,
-                                            Object instance, MethodType factoryReturnType, MethodType fiMethodType,
-                                            String fiMethodName) {
+                                            @Nullable Object instance, MethodType factoryReturnType,
+                                            MethodType fiMethodType, String fiMethodName) {
         try {
             var mh = callerLookup.unreflect(callback);
 

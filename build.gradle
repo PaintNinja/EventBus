@@ -1,4 +1,6 @@
 import net.minecraftforge.gradleutils.PomUtils
+import net.ltgt.gradle.errorprone.ErrorProneOptions
+import net.ltgt.gradle.nullaway.NullAwayOptions
 
 plugins {
     id 'java-library'
@@ -6,6 +8,10 @@ plugins {
     id 'org.gradlex.extra-java-module-info' version '1.11'
     id 'net.minecraftforge.gradleutils' version '2.3.6'
     id 'net.minecraftforge.licenser' version '1.0.1'
+
+    // Enforce jSpecify annotations at compile-time
+    id 'net.ltgt.errorprone' version '4.1.0'
+    id 'net.ltgt.nullaway' version '2.2.0'
 }
 
 group = 'net.minecraftforge'
@@ -24,7 +30,9 @@ repositories {
 }
 
 dependencies {
-
+    api libs.jspecify.annotations
+    errorprone libs.errorprone.core
+    errorprone libs.nullaway
 }
 
 extraJavaModuleInfo {
@@ -33,6 +41,23 @@ extraJavaModuleInfo {
 
 changelog {
     from '1.0.0'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    // Set up compile-time enforcement of the jSpecify spec via ErrorProne and NullAway
+    options.errorprone { ErrorProneOptions errorProne ->
+        errorProne.disableAllChecks = true // Opt-into only the checks we care about
+
+        // Enforce the jSpecify spec
+        errorProne.nullaway { NullAwayOptions nullAway ->
+            nullAway.jspecifyMode = true
+            nullaway.onlyNullMarked = true // Only enforce nullability checks on @NullMarked classes and packages
+            nullAway.error() // Throw a compile error on jSpecify spec violations
+        }
+
+        // Enforce the ErrorProne checks we care about
+        errorProne.error("FieldCanBeFinal", "MethodCanBeStatic", "LambdaFunctionalInterface")
+    }
 }
 
 tasks.named('jar', Jar) {

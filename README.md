@@ -1,6 +1,6 @@
 # EventBus
 
-A simple but flexible, high-performance, thread-safe subscriber-publisher framework designed with modern Java in mind.
+A flexible, high-performance, thread-safe subscriber-publisher framework designed with modern Java in mind.
 
 ## Overview
 The core functionality of EventBus is to provide a simple and efficient way to handle events in a decoupled manner.
@@ -45,6 +45,14 @@ PlayerLoggedInEvent.BUS.post(new PlayerLoggedInEvent("Paint_Ninja"));
 
 Browse the `net.minecraftforge.eventbus.api` package and read the Javadocs for more information. For real-world
 examples, check out Forge's extensive use of EventBus [here][Forge usages].
+
+## Nullability
+The entirety of EventBus' API is `@NullMarked` and compliant with the [jSpecify specification](https://jspecify.dev/) -
+this means that everything is non-null by default unless otherwise specified.
+
+Attempting to pass a `null` value to a method param that isn't explicitly marked as `@Nullable` is an unsupported
+operation and won't be considered a breaking change if a future version throws an exception in such cases when it didn't
+before.
 
 ## Contributing
 One of the main goals of EventBus is performance. As such, any changes should be benchmarked with the `jmh` Gradle task

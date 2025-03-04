@@ -10,6 +10,7 @@ open module net.minecraftforge.eventbus.testjars {
     requires org.objectweb.asm.commons;
 	requires net.minecraftforge.unsafe;
     requires static jmh.core;
+    requires org.jspecify;
 
 //    exports net.minecraftforge.eventbus.testjar;
     exports net.minecraftforge.eventbus.testjar.events;
