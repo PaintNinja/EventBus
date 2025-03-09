@@ -7,6 +7,7 @@ package net.minecraftforge.eventbus.internal;
 import net.minecraftforge.eventbus.api.bus.EventBus;
 import net.minecraftforge.eventbus.api.listener.EventListener;
 import net.minecraftforge.eventbus.api.listener.Priority;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.invoke.CallSite;
 import java.lang.invoke.MethodHandles;
@@ -78,7 +79,7 @@ public record EventBusImpl<T extends Event>(
     //region Invoker
     @Override // overrides from AbstractEventBusImpl
     @SuppressWarnings("unchecked")
-    public Consumer<T> maybeGetInvoker() {
+    public @Nullable Consumer<T> maybeGetInvoker() {
         try {
             return (Consumer<T>) invokerCallSite.getTarget().invokeExact();
         } catch (Throwable t) {

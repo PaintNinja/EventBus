@@ -9,6 +9,7 @@ import net.minecraftforge.eventbus.api.event.characteristic.Cancellable;
 import net.minecraftforge.eventbus.api.listener.EventListener;
 import net.minecraftforge.eventbus.api.listener.ObjBooleanBiConsumer;
 import net.minecraftforge.eventbus.api.listener.Priority;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.invoke.CallSite;
 import java.lang.invoke.MethodHandles;
@@ -117,7 +118,7 @@ public record CancellableEventBusImpl<T extends Event & Cancellable>(
     //region Invoker
     @Override // overrides from AbstractEventBusImpl
     @SuppressWarnings("unchecked")
-    public Predicate<T> maybeGetInvoker() {
+    public @Nullable Predicate<T> maybeGetInvoker() {
         try {
             return (Predicate<T>) invokerCallSite.getTarget().invokeExact();
         } catch (Throwable t) {

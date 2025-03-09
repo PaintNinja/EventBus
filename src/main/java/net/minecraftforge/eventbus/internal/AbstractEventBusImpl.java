@@ -11,6 +11,7 @@ import net.minecraftforge.eventbus.api.event.characteristic.MonitorAware;
 import net.minecraftforge.eventbus.api.event.characteristic.SelfDestructing;
 import net.minecraftforge.eventbus.api.listener.EventListener;
 import net.minecraftforge.eventbus.api.listener.Priority;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Modifier;
 import java.util.*;
@@ -105,7 +106,7 @@ public sealed interface AbstractEventBusImpl<T extends Event, I> extends EventBu
     /**
      * @return The invoker if it is still valid, otherwise null.
      */
-    I maybeGetInvoker();
+    @Nullable I maybeGetInvoker();
 
     /**
      * Should only be called from inside a {@code synchronized(backingList)} block.
