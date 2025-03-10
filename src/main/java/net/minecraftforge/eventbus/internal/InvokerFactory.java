@@ -69,18 +69,20 @@ final class InvokerFactory {
                 var firstMonitor = unwrappedMonitors.iterator().next();
                 return event -> {
                     invoker.accept(event);
-                    ((MutableEvent) event).isMonitoring = true;
+                    var mutableEvent = (MutableEventInternals) event;
+                    mutableEvent.isMonitoring = true;
                     firstMonitor.accept(event, false);
-                    ((MutableEvent) event).isMonitoring = false;
+                    mutableEvent.isMonitoring = false;
                 };
             } else {
                 return event -> {
                     invoker.accept(event);
-                    ((MutableEvent) event).isMonitoring = true;
+                    var mutableEvent = (MutableEventInternals) event;
+                    mutableEvent.isMonitoring = true;
                     for (var monitor : unwrappedMonitors) {
                         monitor.accept(event, false);
                     }
-                    ((MutableEvent) event).isMonitoring = false;
+                    mutableEvent.isMonitoring = false;
                 };
             }
         }
@@ -127,19 +129,21 @@ final class InvokerFactory {
                 var firstMonitor = unwrappedMonitors.iterator().next();
                 return event -> {
                     boolean cancelled = cancellableInvoker.test(event);
-                    ((MutableEventInternals) event).isMonitoring = true;
+                    var mutableEvent = (MutableEventInternals) event;
+                    mutableEvent.isMonitoring = true;
                     firstMonitor.accept(event, cancelled);
-                    ((MutableEventInternals) event).isMonitoring = false;
+                    mutableEvent.isMonitoring = false;
                     return cancelled;
                 };
             } else {
                 return event -> {
                     boolean cancelled = cancellableInvoker.test(event);
-                    ((MutableEventInternals) event).isMonitoring = true;
+                    var mutableEvent = (MutableEventInternals) event;
+                    mutableEvent.isMonitoring = true;
                     for (var monitor : unwrappedMonitors) {
                         monitor.accept(event, cancelled);
                     }
-                    ((MutableEventInternals) event).isMonitoring = false;
+                    mutableEvent.isMonitoring = false;
                     return cancelled;
                 };
             }
