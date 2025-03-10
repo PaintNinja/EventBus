@@ -29,8 +29,13 @@ final class EventListenerFactory {
     private static final MethodType RETURNS_PREDICATE = MethodType.methodType(Predicate.class);
     private static final MethodType RETURNS_MONITOR = MethodType.methodType(ObjBooleanBiConsumer.class);
 
+    /** The method type of the {@link Consumer} functional interface ({@code void accept(Object)}) */
     private static final MethodType CONSUMER_FI_TYPE = MethodType.methodType(void.class, Object.class);
+
+    /** The method type of the {@link Predicate} functional interface ({@code boolean test(Object)}) */
     private static final MethodType PREDICATE_FI_TYPE = CONSUMER_FI_TYPE.changeReturnType(boolean.class);
+
+    /** The method type of the {@link ObjBooleanBiConsumer} functional interface ({@code void accept(Object, boolean)}) */
     private static final MethodType MONITOR_FI_TYPE = MethodType.methodType(void.class, Object.class, boolean.class);
 
     private static final Map<Method, MethodHandle> LMF_CACHE = new ConcurrentHashMap<>();
