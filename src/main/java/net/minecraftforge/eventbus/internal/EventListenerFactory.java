@@ -86,7 +86,7 @@ final class EventListenerFactory {
                     } else {
                         // Consumer<Event>
                         listeners.add(busGroup.getOrCreateEventBus(eventType)
-                                .addListener(createConsumer(callerLookup, method, listenerInstance)));
+                                .addListener(subscribeEventAnnotation.priority(), createConsumer(callerLookup, method, listenerInstance)));
                     }
                 } else if (returnType == boolean.class) {
                     // Predicate<Event & EventCharacteristic.Cancellable>

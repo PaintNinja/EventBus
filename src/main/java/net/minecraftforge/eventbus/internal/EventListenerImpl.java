@@ -66,7 +66,7 @@ public sealed interface EventListenerImpl extends EventListener {
         }
 
         public WrappedConsumerListener {
-            assert !alwaysCancelling && priority != Priority.MONITOR : "Monitoring listeners cannot cancel events";
+            assert !(alwaysCancelling && priority == Priority.MONITOR) : "Monitoring listeners cannot cancel events";
         }
 
         /**
