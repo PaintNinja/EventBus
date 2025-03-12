@@ -18,10 +18,26 @@ import java.util.Collection;
 public sealed interface BusGroup permits BusGroupImpl {
     BusGroup DEFAULT = create("default");
 
+    /**
+     * Creates a new BusGroup with the given name using the default {@link Event} base type.
+     *
+     * @param name The unique name to use
+     * @return The new BusGroup
+     * @throws IllegalArgumentException If a BusGroup with the given name already exists
+     */
     static BusGroup create(String name) {
         return new BusGroupImpl(name, Event.class);
     }
 
+    /**
+     * Creates a new BusGroup with the given name and the given base type.
+     *
+     * @param name The unique name to use
+     * @return The new BusGroup
+     * @throws IllegalArgumentException If a BusGroup with the given name already exists
+     * @apiNote In theory, it is possible to use any base type when creating a BusGroup. However, it is recommended to
+     * either use a direct subtype of {@link Event} or use {@link #create(String)} which uses the default type.
+     */
     static BusGroup create(String name, Class<?> baseType) {
         return new BusGroupImpl(name, baseType);
     }
@@ -46,7 +62,8 @@ public sealed interface BusGroup permits BusGroupImpl {
     /**
      * Shuts down all EventBus instances associated with this BusGroup, unregisters all listeners and frees resources
      * no longer needed.
-     * <p>Warning: This is a destructive operation - this BusGroup should not be used again after calling this method.</p>
+     * <p>Warning: This is a destructive operation - this BusGroup should not be used again after calling this method.
+     * If you need to re-use this BusGroup, use {@link #shutdown()} instead.</p>
      */
     void dispose();
 
@@ -61,7 +78,7 @@ public sealed interface BusGroup permits BusGroupImpl {
     /**
      * Registers all static methods annotated with {@link SubscribeEvent} in the given class.
      *
-     * @param callerLookup {@code MethodHandles.lookup()} from the class containing listeners
+     * @param callerLookup {@link MethodHandles#lookup()} from the class containing listeners
      * @param utilityClassWithStaticListeners the class containing the static listeners
      * @return A collection of the registered listeners, which can be used to optionally unregister them later
      *
@@ -74,7 +91,7 @@ public sealed interface BusGroup permits BusGroupImpl {
     /**
      * Registers all methods annotated with {@link SubscribeEvent} in the given object.
      *
-     * @param callerLookup {@code MethodHandles.lookup()} from the class containing the listeners
+     * @param callerLookup {@link MethodHandles#lookup()} from the class containing the listeners
      * @param listener the object containing the static and/or instance listeners
      * @return A collection of the registered listeners, which can be used to optionally unregister them later
      *
