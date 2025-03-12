@@ -24,7 +24,4 @@ open module net.minecraftforge.eventbus.test {
     // Custom events we're testing
     requires static net.minecraftforge.eventbus.testjars;
     requires net.minecraftforge.unsafe;
-
-//    provides cpw.mods.modlauncher.api.ITransformationService with
-//        net.minecraftforge.eventbus.test.MockTransformerService;
 }
