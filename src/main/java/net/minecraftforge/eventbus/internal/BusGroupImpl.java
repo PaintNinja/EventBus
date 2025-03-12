@@ -139,7 +139,7 @@ public record BusGroupImpl(
         Class<? super T> parent = eventType.getSuperclass();
         if (parent != null // has a parent that's not Object
                 && InheritableEvent.class.isAssignableFrom(parent) // implements InheritableEvent
-                && !parent.isAnnotationPresent(MarkerEvent.class) // the parent hasn't opted out of listener inheritance
+                && parent != MutableEvent.class // the parent isn't exactly MutableEvent
         ) {
             @SuppressWarnings("unchecked")
             var parentEvent = getOrCreateEventBus((Class<? extends Event>) parent);
@@ -150,7 +150,8 @@ public record BusGroupImpl(
         for (var iface : eventType.getInterfaces()) {
             if (iface != InheritableEvent.class
                     && InheritableEvent.class.isAssignableFrom(iface)
-                    && !iface.isAnnotationPresent(MarkerEvent.class)
+                    && iface != RecordEvent.class
+                    && iface != Event.class
             ) {
                 @SuppressWarnings("unchecked")
                 var parentEvent = getOrCreateEventBus((Class<? extends Event>) iface);
