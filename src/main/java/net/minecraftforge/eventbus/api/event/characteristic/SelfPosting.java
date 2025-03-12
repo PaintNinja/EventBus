@@ -8,9 +8,9 @@ import net.minecraftforge.eventbus.api.bus.EventBus;
 import net.minecraftforge.eventbus.internal.Event;
 
 /**
- * Experimental feature - may be removed, renamed or otherwise changed without notice.
- * <p>{@link SelfPosting} events are associated with a default {@link EventBus} in order to offer some convenience
- * instance methods.</p>
+ * Self-posting events are associated with a default {@link EventBus} in order to offer some convenience
+ * instance methods.
+ * <p>
  * <u>Example</u>
  * {@snippet :
  * import net.minecraftforge.eventbus.api.event.RecordEvent;
@@ -31,6 +31,8 @@ import net.minecraftforge.eventbus.internal.Event;
  * // instead of this
  * ExampleEvent.BUS.post(new ExampleEvent());
  *}
+ * @apiNote <strong>This feature is experimental - it may be removed, renamed or otherwise changed without
+ * notice.</strong>
  */
 public non-sealed interface SelfPosting<T extends Event> extends EventCharacteristic {
     /**

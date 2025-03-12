@@ -16,6 +16,12 @@ import java.util.Collection;
  * A collection of {@link EventBus} instances that are grouped together for easier management.
  */
 public sealed interface BusGroup permits BusGroupImpl {
+    /**
+     * The default BusGroup provided by EventBus. While it is recommended to create your own BusGroup, this can be used
+     * as a safe default if necessary.
+     *
+     * @see #create(String)
+     */
     BusGroup DEFAULT = create("default");
 
     /**
@@ -37,6 +43,7 @@ public sealed interface BusGroup permits BusGroupImpl {
      * @throws IllegalArgumentException If a BusGroup with the given name already exists
      * @apiNote In theory, it is possible to use any base type when creating a BusGroup. However, it is recommended to
      * either use a direct subtype of {@link Event} or use {@link #create(String)} which uses the default type.
+     * @see #create(String)
      */
     static BusGroup create(String name, Class<?> baseType) {
         return new BusGroupImpl(name, baseType);
