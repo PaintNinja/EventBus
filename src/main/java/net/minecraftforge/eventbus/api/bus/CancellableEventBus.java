@@ -70,8 +70,8 @@ public sealed interface CancellableEventBus<T extends Event & Cancellable>
      *                         breaking changes if the event is no longer cancellable in the future.</p>
      * @param listener The listener to add.
      * @return A reference that can be used to remove this listener later with {@link #removeListener(EventListener)}.
-     * @see #addListener(Predicate) For adding a listener that can cancel the event conditionally
-     * @see #addListener(Consumer) For adding a listener that never cancels the event
+     * @see #addListener(Predicate)
+     * @see #addListener(Consumer)
      */
     default EventListener addListener(boolean alwaysCancelling, Consumer<T> listener) {
         return addListener(Priority.NORMAL, alwaysCancelling, listener);
@@ -85,7 +85,7 @@ public sealed interface CancellableEventBus<T extends Event & Cancellable>
      *                         unnecessary breaking changes if the event is no longer cancellable in the future</p>
      * @param listener The listener to add.
      * @return A reference that can be used to remove this listener later with {@link #removeListener(EventListener)}.
-     * @see Priority For common priority values
+     * @see Priority
      */
     EventListener addListener(byte priority, boolean alwaysCancelling, Consumer<T> listener);
 
@@ -101,18 +101,35 @@ public sealed interface CancellableEventBus<T extends Event & Cancellable>
      * @param priority The priority of this listener. Higher numbers are called first.
      * @param listener The listener to add.
      * @return A reference that can be used to remove this listener later with {@link #removeListener(EventListener)}.
-     * @see Priority For common priority values
+     * @see Priority
      */
     EventListener addListener(byte priority, Predicate<T> listener);
 
-    // MONITORING
+    /**
+     * Adds a monitoring listener to this EventBus with an unchanging priority of {@link Priority#MONITOR}.
+     * @param listener The listener to add.
+     * @return A reference that can be used to remove this listener later with {@link #removeListener(EventListener)}.
+     * @see Priority#MONITOR
+     */
     EventListener addListener(ObjBooleanBiConsumer<T> listener);
 
+    /**
+     * Creates a new CancellableEventBus for the given event type on the {@linkplain BusGroup#DEFAULT default} {@link BusGroup}.
+     * @param eventType The type of event the bus will have
+     * @param <T> The type of event
+     * @return The new CancallableEventBus
+     */
     @SuppressWarnings("ClassEscapesDefinedScope") // E can be a subtype of Event which is publicly accessible
     static <T extends Event & Cancellable> CancellableEventBus<T> create(Class<T> eventType) {
         return create(BusGroup.DEFAULT, eventType);
     }
 
+    /**
+     * Creates a new CancellableEventBus for the given event type on the given BusGroup.
+     * @param eventType The type of event the bus will have
+     * @param <T> The type of event
+     * @return The new CancallableEventBus
+     */
     @SuppressWarnings("ClassEscapesDefinedScope") // E can be a subtype of Event which is publicly accessible
     static <T extends Event & Cancellable> CancellableEventBus<T> create(BusGroup busGroup, Class<T> eventType) {
         return (CancellableEventBus<T>) ((BusGroupImpl) busGroup).getOrCreateEventBus(eventType);

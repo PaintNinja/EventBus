@@ -113,7 +113,7 @@ public sealed interface EventBus<T extends Event> permits CancellableEventBus, A
     boolean hasListeners();
 
     /**
-     * Creates a new EventBus for the given event type on the default {@link BusGroup}.
+     * Creates a new EventBus for the given event type on the {@linkplain BusGroup#DEFAULT default} {@link BusGroup}.
      * <p><strong>Important:</strong> The returned EventBus <i>MUST</i> be stored in a {@code static final} field -
      * failing to do so will severely hurt performance.</p>
      * @apiNote There can only be one EventBus instance per event type per BusGroup.

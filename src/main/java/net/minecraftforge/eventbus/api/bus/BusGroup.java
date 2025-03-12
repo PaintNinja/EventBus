@@ -17,8 +17,8 @@ import java.util.Collection;
  */
 public sealed interface BusGroup permits BusGroupImpl {
     /**
-     * The default BusGroup provided by EventBus. While it is recommended to create your own BusGroup, this can be used
-     * as a safe default if necessary.
+     * The default BusGroup provided by EventBus. If when creating an {@link EventBus} the BusGroup is not specified, it
+     * will be registered in this one.
      *
      * @see #create(String)
      */
