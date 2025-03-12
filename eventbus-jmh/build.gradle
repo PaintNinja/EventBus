@@ -20,19 +20,14 @@ license {
 }
 
 dependencies {
-    compileOnly(libs.nulls)
-
-    implementation(rootProject)
-    implementation(libs.bundles.asm) // Needed by ModLauncher
-    implementation(libs.junit.api)
-    implementation(libs.securemodules)
-    implementation(libs.modlauncher)
-    implementation(libs.unsafe)
-    implementation(projects.eventbusTestJar)
+    implementation rootProject
+    implementation projects.eventbusTestJar
 
     implementation libs.jmh.core
     runtimeOnly libs.jmh.annotationProcessor
     annotationProcessor libs.jmh.annotationProcessor
+
+    implementation libs.jspecify.annotations
 }
 
 extraJavaModuleInfo {

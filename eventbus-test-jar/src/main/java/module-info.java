@@ -12,7 +12,6 @@ open module net.minecraftforge.eventbus.testjars {
     requires static jmh.core;
     requires org.jspecify;
 
-//    exports net.minecraftforge.eventbus.testjar;
     exports net.minecraftforge.eventbus.testjar.events;
     exports net.minecraftforge.eventbus.testjar.subscribers;
     exports net.minecraftforge.eventbus.testjar.benchmarks;

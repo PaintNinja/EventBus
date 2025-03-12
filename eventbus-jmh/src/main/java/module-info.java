@@ -6,7 +6,9 @@ open module net.minecraftforge.eventbus.jmh {
     requires net.minecraftforge.eventbus;
     requires org.jspecify;
     requires jmh.core;
+    requires jdk.unsupported; // needed by JMH for Unsafe
 
     requires net.minecraftforge.eventbus.testjars;
-    requires net.minecraftforge.unsafe;
+
+    exports net.minecraftforge.eventbus.benchmarks;
 }
