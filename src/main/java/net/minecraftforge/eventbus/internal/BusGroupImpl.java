@@ -8,6 +8,7 @@ import net.minecraftforge.eventbus.api.bus.BusGroup;
 import net.minecraftforge.eventbus.api.bus.EventBus;
 import net.minecraftforge.eventbus.api.event.*;
 import net.minecraftforge.eventbus.api.event.characteristic.Cancellable;
+import net.minecraftforge.eventbus.api.event.characteristic.MonitorAware;
 import net.minecraftforge.eventbus.api.listener.EventListener;
 
 import java.lang.invoke.MethodHandles;
@@ -90,6 +91,9 @@ public record BusGroupImpl(
 
         if (RecordEvent.class.isAssignableFrom(eventType) && !eventType.isRecord())
             throw new IllegalArgumentException("Event type " + eventType + " is not a record class but implements RecordEvent");
+
+        if (MonitorAware.class.isAssignableFrom(eventType) && !MutableEvent.class.isAssignableFrom(eventType))
+            throw new IllegalArgumentException("Event type " + eventType + " implements MonitorAware but is not a MutableEvent");
 
         int characteristics = AbstractEventBusImpl.computeEventCharacteristics(eventType);
 
