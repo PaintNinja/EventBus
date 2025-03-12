@@ -177,7 +177,8 @@ final class InvokerFactory {
     private static <T extends Event & Cancellable> Predicate<T> createCancellableInvoker(List<EventListener> listeners) {
         // If none of the listeners are able to cancel the event, we can remove the overhead of checking for cancellation entirely
         // by treating it like a non-cancellable event.
-        if (listeners.stream().allMatch(EventListenerImpl.WrappedConsumerListener.class::isInstance)) {
+        if (listeners.size() <= UNWRAP_CANCELLABLE_THRESHOLD
+                && listeners.stream().allMatch(EventListenerImpl.WrappedConsumerListener.class::isInstance)) {
             // We can't do this because the JVM seems to hate wrapping a lambda inside another lambda of a different type (4-5x slower)...
             // Microsoft\jdk-21.0.4.7-hotspot
 //            Consumer<T> invoker = createInvoker(listeners);
@@ -189,7 +190,8 @@ final class InvokerFactory {
             // ...so annoyingly, we need to duplicate the code of createInvoker() here, but with a different primitive return type (boolean instead of void)
             // Maybe JEP 402 can save us from this workaround in the future? https://openjdk.java.net/jeps/402
 
-            if (listeners.size() <= UNWRAP_CANCELLABLE_THRESHOLD)
+            // TODO: [EB][Invoker] Support alwaysCancelling listeners in cancellation check-free Consumer invokers
+            if (listeners.stream().map(EventListenerImpl.WrappedConsumerListener.class::cast).noneMatch(EventListenerImpl.WrappedConsumerListener::alwaysCancelling))
                 return createCancellableInvokerFromUnwrappedNoChecks((List<Consumer<T>>) (List) InvokerFactoryUtils.unwrapConsumers(listeners));
         }
 
