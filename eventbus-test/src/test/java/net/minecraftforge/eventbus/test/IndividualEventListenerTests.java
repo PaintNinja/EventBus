@@ -4,10 +4,12 @@ import net.minecraftforge.eventbus.api.bus.CancellableEventBus;
 import net.minecraftforge.eventbus.api.bus.EventBus;
 import net.minecraftforge.eventbus.api.event.RecordEvent;
 import net.minecraftforge.eventbus.api.event.characteristic.Cancellable;
+import net.minecraftforge.eventbus.api.listener.EventListener;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class IndividualEventListenerTests {
     /**
@@ -151,5 +153,31 @@ public class IndividualEventListenerTests {
 
         EventA.BUS.removeListener(eventAListener);
         EventB.BUS.removeListener(eventBListener);
+    }
+
+    /**
+     * Tests that single use listeners work as expected (a listener that removes itself after being called once).
+     */
+    @Test
+    public void testSingleUseListener() {
+        record SingleUseTestEvent() implements RecordEvent {
+            static final EventBus<SingleUseTestEvent> BUS = EventBus.create(SingleUseTestEvent.class);
+        }
+
+        var wasCalled = new AtomicBoolean();
+        var listenerRef = new AtomicReference<EventListener>();
+        var listener = SingleUseTestEvent.BUS.addListener(event -> {
+            wasCalled.set(true);
+            SingleUseTestEvent.BUS.removeListener(listenerRef.get());
+        });
+        listenerRef.set(listener);
+
+        Assertions.assertFalse(wasCalled.get(), "Single use listener should not have been called yet");
+        SingleUseTestEvent.BUS.post(new SingleUseTestEvent());
+        Assertions.assertTrue(wasCalled.get(), "Single use listener should have been called");
+
+        // The listener should have been removed after being called
+        SingleUseTestEvent.BUS.post(new SingleUseTestEvent());
+        Assertions.assertTrue(wasCalled.get(), "Single use listener should not have been called again");
     }
 }
