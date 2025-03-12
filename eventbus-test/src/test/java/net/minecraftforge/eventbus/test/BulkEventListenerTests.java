@@ -292,7 +292,7 @@ public class BulkEventListenerTests {
      * Tests that cancellable, monitoring and priority variants of listeners are registered and called correctly.
      */
     @Test
-    public void testBulkRegisteredCancellableListeners() {
+    public void testBulkRegisteredVarietyListeners() {
         VariantListeners.reset();
 
         AtomicReference<Collection<EventListener>> listeners = new AtomicReference<>();
@@ -337,5 +337,29 @@ public class BulkEventListenerTests {
         Assertions.assertTrue(VariantListeners.cancellationAwareMonitoringCalled, "Cancellation aware monitoring listener should have been called");
         Assertions.assertTrue(VariantListeners.lowPriorityCalled, "Low priority listener should have been called");
         Assertions.assertTrue(VariantListeners.highPriorityCalled, "High priority listener should have been called");
+    }
+
+    public static class EncapsulatedListeners {
+        @SubscribeEvent
+        private static void encapsulatedListener(TestEvent event) {
+            Assertions.fail("Encapsulated listener should not be called");
+        }
+
+        @SubscribeEvent
+        private void encapsulatedInstanceListener(TestEvent event) {
+            Assertions.fail("Encapsulated instance listener should not be called");
+        }
+    }
+
+    /**
+     * Tests that encapsulation is respected when requested during bulk registration.
+     */
+    @Test
+    public void testBulkRegistrationEncapsulation() {
+        Assertions.assertThrows(
+                Exception.class,
+                () -> BusGroup.DEFAULT.register(MethodHandles.publicLookup(), new EncapsulatedListeners()),
+                "Private listeners should not be accessible with a public lookup"
+        );
     }
 }
