@@ -180,4 +180,31 @@ public class IndividualEventListenerTests {
         SingleUseTestEvent.BUS.post(new SingleUseTestEvent());
         Assertions.assertTrue(wasCalled.get(), "Single use listener should not have been called again");
     }
+
+    /**
+     * Tests that listeners can be registered during event posting.
+     */
+    @Test
+    public void testListenerRegistrationDuringEventPosting() {
+        record RegistrationTestEvent() implements RecordEvent {
+            static final EventBus<RegistrationTestEvent> BUS = EventBus.create(RegistrationTestEvent.class);
+        }
+
+        var firstWasCalled = new AtomicBoolean();
+        var secondWasCalled = new AtomicBoolean();
+        var listener = RegistrationTestEvent.BUS.addListener(event -> {
+            firstWasCalled.set(true);
+            RegistrationTestEvent.BUS.addListener(event2 -> secondWasCalled.set(true));
+        });
+
+        Assertions.assertFalse(firstWasCalled.get(), "Listener should not have been called yet");
+        RegistrationTestEvent.BUS.post(new RegistrationTestEvent());
+        Assertions.assertTrue(firstWasCalled.get(), "Listener should have been called");
+
+        // The new listener should be called
+        RegistrationTestEvent.BUS.post(new RegistrationTestEvent());
+        Assertions.assertTrue(secondWasCalled.get(), "New listener should have been called");
+
+        RegistrationTestEvent.BUS.removeListener(listener);
+    }
 }
