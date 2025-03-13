@@ -52,15 +52,14 @@ tasks.register('archiveJfr', ArchiveJfr) {
     output = file('build/jmh_profile_results/archive/')
 }
 
-tasks.register('jmh') {
-    dependsOn 'aggregateJmh'
-}
+tasks.register('jmh')
 
 ((Map<String, List<Integer>>) ext.VALID_VMS).forEach { javaVendor, javaVersions ->
     for (Integer javaVersion in javaVersions) {
         var output = file("build/jmh_results/jmh-${javaVendor}-${javaVersion}.json")
-        var outputJfr = file("build/jmh_profile_results/last_run/${javaVendor}-${javaVersion}/")
-        outputJfr.mkdirs()
+        output.mkdirs()
+//        var outputJfr = file("build/jmh_profile_results/last_run/${javaVendor}-${javaVersion}/")
+//        outputJfr.mkdirs()
         var task = tasks.register("jmh${javaVendor}${javaVersion}", JavaExec) {
             classpath = sourceSets.main.runtimeClasspath
             mainModule = 'net.minecraftforge.eventbus.jmh'
@@ -95,7 +94,7 @@ tasks.register('jmh') {
                 args += project.property('bench')
 
             doFirst {
-                outputJfr.deleteDir()
+//                outputJfr.deleteDir()
                 if (!output.parentFile.exists())
                     output.parentFile.mkdirs()
                 if (output.exists())
@@ -107,13 +106,16 @@ tasks.register('jmh') {
                 implementation = JvmImplementation.VENDOR_SPECIFIC
             }
         }
-        tasks.named('aggregateJmh') {
+        tasks.named('jmh') {
             dependsOn task
-            inputs.file output
         }
-        tasks.named('archiveJfr') {
-            dependsOn task
-            inputs.dir outputJfr
-        }
+//        tasks.named('aggregateJmh') {
+//            dependsOn task
+//            inputs.file output
+//        }
+//        tasks.named('archiveJfr') {
+//            dependsOn task
+//            inputs.dir outputJfr
+//        }
     }
 }

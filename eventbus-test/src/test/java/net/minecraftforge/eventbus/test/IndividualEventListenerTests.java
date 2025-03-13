@@ -192,19 +192,21 @@ public class IndividualEventListenerTests {
 
         var firstWasCalled = new AtomicBoolean();
         var secondWasCalled = new AtomicBoolean();
-        var listener = RegistrationTestEvent.BUS.addListener(event -> {
+        var secondListenerRef = new AtomicReference<EventListener>();
+        var firstListener = RegistrationTestEvent.BUS.addListener(event -> {
             firstWasCalled.set(true);
-            RegistrationTestEvent.BUS.addListener(event2 -> secondWasCalled.set(true));
+            secondListenerRef.set(RegistrationTestEvent.BUS.addListener(event2 -> secondWasCalled.set(true)));
         });
 
         Assertions.assertFalse(firstWasCalled.get(), "Listener should not have been called yet");
         RegistrationTestEvent.BUS.post(new RegistrationTestEvent());
         Assertions.assertTrue(firstWasCalled.get(), "Listener should have been called");
 
-        // The new listener should be called
+        Assertions.assertFalse(secondWasCalled.get(), "New listener should not have been called yet");
         RegistrationTestEvent.BUS.post(new RegistrationTestEvent());
         Assertions.assertTrue(secondWasCalled.get(), "New listener should have been called");
 
-        RegistrationTestEvent.BUS.removeListener(listener);
+        RegistrationTestEvent.BUS.removeListener(firstListener);
+        RegistrationTestEvent.BUS.removeListener(secondListenerRef.get());
     }
 }

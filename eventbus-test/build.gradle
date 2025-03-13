@@ -18,6 +18,7 @@ java {
 
 license {
     header = rootProject.file("LICENSE-header.txt")
+    newLine = false
 }
 
 dependencies {
@@ -30,7 +31,10 @@ dependencies {
 
 extraJavaModuleInfo {
     failOnMissingModuleInfo = false
-    automaticModule('net.sf.jopt-simple:jopt-simple', 'jopt.simple')
+}
+
+tasks.named('test', Test) {
+    useJUnitPlatform()
 }
 
 tasks.register('testAll', AggregateTest) {
@@ -38,23 +42,25 @@ tasks.register('testAll', AggregateTest) {
     output = rootProject.file('test_results.html')
 }
 
-VALID_VMS.each { javaVendor, javaVersions ->
-    javaVersions.each { javaVersion ->
-        def output = file("build/test-results/${javaVendor}-${javaVersion}/")
+((Map<String, List<Integer>>) ext.VALID_VMS).forEach { javaVendor, javaVersions ->
+    for (Integer javaVersion in javaVersions) {
+        var output = file("build/test-results/${javaVendor}-${javaVersion}/")
         output.mkdirs()
-        def task = tasks.register("test${javaVendor}${javaVersion}", Test) {
+        var task = tasks.register("test${javaVendor}${javaVersion}", Test) {
             useJUnitPlatform()
-            javaLauncher.set(javaToolchains.launcherFor {
-                it.vendor.set(JvmVendorSpec."${javaVendor.toUpperCase(Locale.ROOT)}" as JvmVendorSpec)
-                it.languageVersion.set(JavaLanguageVersion.of(javaVersion))
-                it.implementation.set(JvmImplementation.VENDOR_SPECIFIC)
-            })
+            javaLauncher = javaToolchains.launcherFor {
+                vendor = JvmVendorSpec."${javaVendor.toUpperCase(Locale.ROOT)}" as JvmVendorSpec
+                languageVersion = JavaLanguageVersion.of(javaVersion)
+                implementation = JvmImplementation.VENDOR_SPECIFIC
+            }
             reports.html.destination = file("build/test-reports/${javaVendor}-${javaVersion}/")
             reports.junitXml.destination = output
         }
-        testAll.inputs.dir(output)
-        testAll.dependsOn(task)
-        testAll.mustRunAfter(task)
+        tasks.named('testAll') {
+            inputs.dir(output)
+            dependsOn task
+            mustRunAfter task
+        }
     }
 }
 
