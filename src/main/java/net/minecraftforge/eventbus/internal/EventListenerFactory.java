@@ -40,7 +40,7 @@ final class EventListenerFactory {
 
     private static final Map<Method, MethodHandle> LMF_CACHE = new ConcurrentHashMap<>();
 
-    // Todo: make the error messages more descriptive
+    // Todo: [EB][Bulk registration] make the error messages more descriptive
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static Collection<EventListener> register(BusGroupImpl busGroup, MethodHandles.Lookup callerLookup,
                                                      Class<?> listenerClass, @Nullable Object listenerInstance) {

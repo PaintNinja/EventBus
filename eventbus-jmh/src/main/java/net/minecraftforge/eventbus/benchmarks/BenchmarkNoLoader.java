@@ -134,8 +134,8 @@ public class BenchmarkNoLoader {
             }
         }
 
-        // Todo: Need to consider ClassFactory for this... it's allowing the JVM to cache the created lambda CallSite,
-        //       while the other two benchmarks are creating a new CallSite every time.
+        // Todo: [EB][Benchmarks] Need to consider ClassFactory for this... it's allowing the JVM to cache the created
+        //       lambda CallSite, while the other two benchmarks are creating a new CallSite every time.
 //        @State(Scope.Benchmark)
 //        public static class Lambda {
 //            @Setup(Level.Trial)

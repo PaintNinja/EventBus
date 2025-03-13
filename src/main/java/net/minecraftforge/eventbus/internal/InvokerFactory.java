@@ -190,7 +190,7 @@ final class InvokerFactory {
             // ...so annoyingly, we need to duplicate the code of createInvoker() here, but with a different primitive return type (boolean instead of void)
             // Maybe JEP 402 can save us from this workaround in the future? https://openjdk.java.net/jeps/402
 
-            // TODO: [EB][Invoker] Support alwaysCancelling listeners in cancellation check-free Consumer invokers
+            // Todo: [EB][Invoker] Support alwaysCancelling listeners in cancellation check-free Consumer invokers
             if (listeners.stream().map(EventListenerImpl.WrappedConsumerListener.class::cast).noneMatch(EventListenerImpl.WrappedConsumerListener::alwaysCancelling))
                 return createCancellableInvokerFromUnwrappedNoChecks((List<Consumer<T>>) (List) InvokerFactoryUtils.unwrapConsumers(listeners));
         }
