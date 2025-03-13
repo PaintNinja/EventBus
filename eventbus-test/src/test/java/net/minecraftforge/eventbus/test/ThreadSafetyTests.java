@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -87,27 +88,42 @@ public class ThreadSafetyTests {
     }
 
     public static final class ParallelEvents {
-        record TestEvent() implements RecordEvent {
-            static final EventBus<TestEvent> BUS = EventBus.create(TestEvent.class);
+        record TestEventA() implements RecordEvent {
+            static final EventBus<TestEventA> BUS = EventBus.create(TestEventA.class);
         }
 
-        private static final int LISTENER_COUNT = 1_000;
+        record TestEventB() implements RecordEvent {
+            static final EventBus<TestEventB> BUS = EventBus.create(TestEventB.class);
+        }
+
+        private static final int LISTENER_COUNT_PER_EVENT = 1_000;
         private static final int RUN_ITERATIONS = 1_000;
 
-        private static final AtomicLong COUNTER = new AtomicLong();
+        private static final AtomicLong COUNTER_A = new AtomicLong();
+        private static final AtomicLong COUNTER_B = new AtomicLong();
 
         private static void test() {
             // Prepare parallel listener addition
-            List<Runnable> adders = Collections.nCopies(
-                    LISTENER_COUNT,
-                    () -> TestEvent.BUS.addListener(new Consumer<TestEvent>() {
+            List<Runnable> adders = new ArrayList<>(Collections.nCopies(
+                    LISTENER_COUNT_PER_EVENT,
+                    () -> TestEventA.BUS.addListener(new Consumer<>() {
                         // Note: must be a new anon class instance to avoid deduplication
                         @Override
-                        public void accept(TestEvent event) {
-                            COUNTER.incrementAndGet();
+                        public void accept(TestEventA event) {
+                            COUNTER_A.incrementAndGet();
                         }
                     })
-            );
+            ));
+            adders.addAll(Collections.nCopies(
+                    LISTENER_COUNT_PER_EVENT,
+                    () -> TestEventB.BUS.addListener(new Consumer<TestEventB>() {
+                        @Override
+                        public void accept(TestEventB event) {
+                            COUNTER_B.incrementAndGet();
+                        }
+                    })
+            ));
+            Collections.shuffle(adders);
 
             // Execute parallel listener addition
             Assertions.assertDoesNotThrow(
@@ -116,26 +132,32 @@ public class ThreadSafetyTests {
             );
 
             // Check that all listeners were added
-            var testEventBusInternals = (EventBusImpl<?>) TestEvent.BUS;
+            var eventBusAInternals = (EventBusImpl<?>) TestEventA.BUS;
+            var eventBusBInternals = (EventBusImpl<?>) TestEventB.BUS;
             Assertions.assertEquals(
-                    LISTENER_COUNT,
-                    testEventBusInternals.backingList().size(),
+                    LISTENER_COUNT_PER_EVENT * 2,
+                    eventBusAInternals.backingList().size() + eventBusBInternals.backingList().size(),
                     "All listeners should be added"
             );
 
             // Prepare parallel event posting
-            List<Runnable> posters = Collections.nCopies(
+            List<Runnable> posters = new ArrayList<>(Collections.nCopies(
                     RUN_ITERATIONS,
-                    () -> TestEvent.BUS.post(new TestEvent())
-            );
+                    () -> TestEventA.BUS.post(new TestEventA())
+            ));
+            posters.addAll(Collections.nCopies(
+                    RUN_ITERATIONS,
+                    () -> TestEventB.BUS.post(new TestEventB())
+            ));
+            Collections.shuffle(posters);
 
             // Execute parallel event posting
             posters.parallelStream().forEach(Runnable::run);
 
             // Check that all listeners were called the correct number of times
             Assertions.assertEquals(
-                    COUNTER.get(),
-                    LISTENER_COUNT * RUN_ITERATIONS,
+                    COUNTER_A.get() + COUNTER_B.get(),
+                    (LISTENER_COUNT_PER_EVENT * 2) * RUN_ITERATIONS,
                     "All listeners should be called the correct number of times"
             );
         }
