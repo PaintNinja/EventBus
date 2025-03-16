@@ -302,7 +302,7 @@ public class BulkEventListenerTests {
         );
         Assertions.assertNotNull(listeners.get(), "Bulk registered listeners should not be null");
         Assertions.assertFalse(listeners.get().isEmpty(), "Bulk registered listeners should not be empty");
-        Assertions.assertEquals(6, listeners.get().size(), "There should be six listeners registered");
+        Assertions.assertEquals(7, listeners.get().size(), "There should be six listeners registered");
         Assertions.assertTrue(
                 listeners.get().stream().anyMatch(EventListener::alwaysCancelling),
                 "There should be an always cancelling listener registered"

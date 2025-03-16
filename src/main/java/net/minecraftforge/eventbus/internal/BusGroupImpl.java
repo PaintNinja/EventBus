@@ -60,12 +60,16 @@ public record BusGroupImpl(
 
     @Override
     public Collection<EventListener> register(MethodHandles.Lookup callerLookup, Class<?> utilityClassWithStaticListeners) {
-        return EventListenerFactory.register(this, callerLookup, utilityClassWithStaticListeners, null);
+        return Constants.STRICT_REGISTRATION_CHECKS
+                ? EventListenerFactory.registerStrict(this, callerLookup, utilityClassWithStaticListeners, null)
+                : EventListenerFactory.register(this, callerLookup, utilityClassWithStaticListeners, null);
     }
 
     @Override
     public Collection<EventListener> register(MethodHandles.Lookup callerLookup, Object listener) {
-        return EventListenerFactory.register(this, callerLookup, listener.getClass(), listener);
+        return Constants.STRICT_REGISTRATION_CHECKS
+                ? EventListenerFactory.registerStrict(this, callerLookup, listener.getClass(), listener)
+                : EventListenerFactory.register(this, callerLookup, listener.getClass(), listener);
     }
 
     @Override
