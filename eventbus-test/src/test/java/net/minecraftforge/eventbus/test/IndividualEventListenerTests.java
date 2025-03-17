@@ -179,8 +179,9 @@ public class IndividualEventListenerTests {
         Assertions.assertTrue(wasCalled.get(), "Single use listener should have been called");
 
         // The listener should have been removed after being called
+        wasCalled.set(false);
         SingleUseTestEvent.BUS.post(new SingleUseTestEvent());
-        Assertions.assertTrue(wasCalled.get(), "Single use listener should not have been called again");
+        Assertions.assertFalse(wasCalled.get(), "Single use listener should not have been called again");
     }
 
     /**
