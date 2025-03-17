@@ -113,9 +113,6 @@ final class InvokerFactory {
             List<EventListener> listeners,
             List<EventListener> monitoringListeners
     ) {
-        if (!Constants.ALLOW_DUPE_LISTENERS)
-            listeners = listeners.stream().distinct().toList();
-
         Predicate<T> cancellableInvoker = createCancellableInvoker(listeners);
         if (monitoringListeners.isEmpty())
             return cancellableInvoker;
