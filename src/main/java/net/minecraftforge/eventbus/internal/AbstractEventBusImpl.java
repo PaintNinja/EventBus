@@ -21,7 +21,7 @@ public sealed interface AbstractEventBusImpl<T extends Event, I> extends EventBu
         permits CancellableEventBusImpl, EventBusImpl {
     //region Record component accessors
     ArrayList<EventListener> backingList();
-    Set<EventListener> monitorBackingSet();
+    ArrayList<EventListener> monitorBackingList();
     List<AbstractEventBusImpl<?, ?>> children();
     AtomicBoolean shutdownFlag();
     AtomicBoolean alreadyInvalidated();
@@ -65,7 +65,7 @@ public sealed interface AbstractEventBusImpl<T extends Event, I> extends EventBu
     default EventListener addListener(EventListener listener) {
         synchronized (backingList()) {
             boolean added = listener.priority() == Priority.MONITOR
-                    ? monitorBackingSet().add(listener)
+                    ? monitorBackingList().add(listener)
                     : backingList().add(listener);
 
             if (added) {
@@ -86,7 +86,7 @@ public sealed interface AbstractEventBusImpl<T extends Event, I> extends EventBu
     default void removeListener(EventListener listener) {
         synchronized (backingList()) {
             boolean removed = listener.priority() == Priority.MONITOR
-                    ? monitorBackingSet().remove(listener)
+                    ? monitorBackingList().remove(listener)
                     : backingList().remove(listener);
 
             if (removed) {
@@ -162,9 +162,10 @@ public sealed interface AbstractEventBusImpl<T extends Event, I> extends EventBu
         shutdown();
         synchronized (backingList()) {
             backingList().clear();
-            monitorBackingSet().clear();
+            monitorBackingList().clear();
 
             backingList().trimToSize();
+            monitorBackingList().trimToSize();
         }
         children().forEach(AbstractEventBusImpl::dispose);
     }
@@ -172,6 +173,7 @@ public sealed interface AbstractEventBusImpl<T extends Event, I> extends EventBu
     default void trim() {
         synchronized (backingList()) {
             backingList().trimToSize();
+            monitorBackingList().trimToSize();
         }
     }
 

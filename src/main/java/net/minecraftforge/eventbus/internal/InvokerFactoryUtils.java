@@ -55,12 +55,12 @@ final class InvokerFactoryUtils {
         return unwrappedPredicates;
     }
 
-    static <T> Set<ObjBooleanBiConsumer<T>> unwrapMonitors(Set<EventListener> monitoringListeners) {
+    static <T> List<ObjBooleanBiConsumer<T>> unwrapMonitors(List<EventListener> monitoringListeners) {
         return monitoringListeners.stream()
                 .map(EventListenerImpl.MonitoringListener.class::cast)
                 .map(EventListenerImpl.MonitoringListener::booleanBiConsumer)
                 .<ObjBooleanBiConsumer<T>>map(InvokerFactoryUtils::uncheckedCast)
-                .collect(Collectors.toUnmodifiableSet());
+                .toList();
     }
 
     @SuppressWarnings("unchecked")

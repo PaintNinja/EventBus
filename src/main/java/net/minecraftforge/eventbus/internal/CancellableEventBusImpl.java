@@ -26,7 +26,7 @@ public record CancellableEventBusImpl<T extends Event & Cancellable>(
         Class<T> eventType,
         CallSite invokerCallSite,
         ArrayList<EventListener> backingList,
-        Set<EventListener> monitorBackingSet,
+        ArrayList<EventListener> monitorBackingList,
         List<AbstractEventBusImpl<?, ?>> children,
         AtomicBoolean alreadyInvalidated,
         AtomicBoolean shutdownFlag,
@@ -38,7 +38,7 @@ public record CancellableEventBusImpl<T extends Event & Cancellable>(
                 eventType,
                 new VolatileCallSite(backingList.isEmpty() ? MH_NO_OP_PREDICATE : MH_NULL_PREDICATE),
                 backingList,
-                new HashSet<>(),
+                new ArrayList<>(),
                 AbstractEventBusImpl.makeEventChildrenList(eventType, eventCharacteristics),
                 new AtomicBoolean(),
                 new AtomicBoolean(),
@@ -137,10 +137,10 @@ public record CancellableEventBusImpl<T extends Event & Cancellable>(
             backingList.sort(PRIORITY_COMPARATOR);
 
             if (Constants.isSelfDestructing(eventCharacteristics()))
-                monitorBackingSet.add(new EventListenerImpl.MonitoringListener(eventType, (event, wasCancelled) -> dispose()));
+                monitorBackingList.add(new EventListenerImpl.MonitoringListener(eventType, (event, wasCancelled) -> dispose()));
 
             Predicate<T> invoker = setInvoker(InvokerFactory.createCancellableMonitoringInvoker(
-                    eventType, eventCharacteristics, backingList, monitorBackingSet
+                    eventType, eventCharacteristics, backingList, monitorBackingList
             ));
 
             alreadyInvalidated.set(false);

@@ -10,7 +10,6 @@ import net.minecraftforge.eventbus.api.listener.EventListener;
 import net.minecraftforge.eventbus.api.listener.ObjBooleanBiConsumer;
 
 import java.util.List;
-import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -51,13 +50,13 @@ final class InvokerFactory {
             Class<T> eventType,
             int eventCharacteristics,
             List<EventListener> listeners,
-            Set<EventListener> monitoringListeners
+            List<EventListener> monitoringListeners
     ) {
         Consumer<T> invoker = createInvoker(listeners);
         if (monitoringListeners.isEmpty())
             return invoker;
 
-        Set<ObjBooleanBiConsumer<T>> unwrappedMonitors = InvokerFactoryUtils.unwrapMonitors(monitoringListeners);
+        List<ObjBooleanBiConsumer<T>> unwrappedMonitors = InvokerFactoryUtils.unwrapMonitors(monitoringListeners);
 
         if (Constants.isMonitorAware(eventCharacteristics)) {
             if (!MutableEvent.class.isAssignableFrom(eventType))
@@ -66,7 +65,7 @@ final class InvokerFactory {
 
             // If there's only one monitoring listener, invoke it directly without setting up an iterator/loop
             if (monitoringListeners.size() == 1) {
-                var firstMonitor = unwrappedMonitors.iterator().next();
+                var firstMonitor = unwrappedMonitors.getFirst();
                 return event -> {
                     invoker.accept(event);
                     var mutableEvent = (MutableEventInternals) event;
@@ -89,7 +88,7 @@ final class InvokerFactory {
 
         // same as above but without notifying the event that it's being monitored
         if (monitoringListeners.size() == 1) {
-            var firstMonitor = unwrappedMonitors.iterator().next();
+            var firstMonitor = unwrappedMonitors.getFirst();
             return event -> {
                 invoker.accept(event);
                 firstMonitor.accept(event, false);
@@ -108,7 +107,7 @@ final class InvokerFactory {
             Class<T> eventType,
             int eventCharacteristics,
             List<EventListener> listeners,
-            Set<EventListener> monitoringListeners
+            List<EventListener> monitoringListeners
     ) {
         if (!Constants.ALLOW_DUPE_LISTENERS)
             listeners = listeners.stream().distinct().toList();
@@ -117,7 +116,7 @@ final class InvokerFactory {
         if (monitoringListeners.isEmpty())
             return cancellableInvoker;
 
-        Set<ObjBooleanBiConsumer<T>> unwrappedMonitors = InvokerFactoryUtils.unwrapMonitors(monitoringListeners);
+        List<ObjBooleanBiConsumer<T>> unwrappedMonitors = InvokerFactoryUtils.unwrapMonitors(monitoringListeners);
 
         if (Constants.isMonitorAware(eventCharacteristics)) {
             if (!MutableEvent.class.isAssignableFrom(eventType))
@@ -126,7 +125,7 @@ final class InvokerFactory {
 
             // If there's only one monitoring listener, invoke it directly without setting up an iterator/loop
             if (monitoringListeners.size() == 1) {
-                var firstMonitor = unwrappedMonitors.iterator().next();
+                var firstMonitor = unwrappedMonitors.getFirst();
                 return event -> {
                     boolean cancelled = cancellableInvoker.test(event);
                     var mutableEvent = (MutableEventInternals) event;
@@ -151,7 +150,7 @@ final class InvokerFactory {
 
         // same as above but without notifying the event that it's being monitored
         if (monitoringListeners.size() == 1) {
-            var firstMonitor = unwrappedMonitors.iterator().next();
+            var firstMonitor = unwrappedMonitors.getFirst();
             return event -> {
                 boolean cancelled = cancellableInvoker.test(event);
                 firstMonitor.accept(event, cancelled);

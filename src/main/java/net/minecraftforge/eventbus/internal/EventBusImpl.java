@@ -23,7 +23,7 @@ public record EventBusImpl<T extends Event>(
         Class<T> eventType,
         CallSite invokerCallSite,
         ArrayList<EventListener> backingList,
-        Set<EventListener> monitorBackingSet,
+        ArrayList<EventListener> monitorBackingList,
         List<AbstractEventBusImpl<?, ?>> children,
         AtomicBoolean alreadyInvalidated,
         AtomicBoolean shutdownFlag,
@@ -35,7 +35,7 @@ public record EventBusImpl<T extends Event>(
                 eventType,
                 new VolatileCallSite(backingList.isEmpty() ? MH_NO_OP_CONSUMER : MH_NULL_CONSUMER),
                 backingList,
-                new HashSet<>(),
+                new ArrayList<>(),
                 AbstractEventBusImpl.makeEventChildrenList(eventType, eventCharacteristics),
                 new AtomicBoolean(),
                 new AtomicBoolean(),
@@ -98,7 +98,7 @@ public record EventBusImpl<T extends Event>(
             backingList.sort(PRIORITY_COMPARATOR);
 
             Consumer<T> invoker = InvokerFactory.createMonitoringInvoker(
-                    eventType, eventCharacteristics, backingList, monitorBackingSet
+                    eventType, eventCharacteristics, backingList, monitorBackingList
             );
 
             if (Constants.isSelfDestructing(eventCharacteristics))
