@@ -59,7 +59,7 @@ final class InvokerFactory {
 
         Set<ObjBooleanBiConsumer<T>> unwrappedMonitors = InvokerFactoryUtils.unwrapMonitors(monitoringListeners);
 
-        if ((eventCharacteristics & Constants.CHARACTERISTIC_MONITOR_AWARE) != 0) {
+        if (Constants.isMonitorAware(eventCharacteristics)) {
             if (!MutableEvent.class.isAssignableFrom(eventType))
                 throw new UnsupportedOperationException("This version of EventBus only supports " +
                         "EventCharacteristics.MonitorAware on MutableEvent");
@@ -119,7 +119,7 @@ final class InvokerFactory {
 
         Set<ObjBooleanBiConsumer<T>> unwrappedMonitors = InvokerFactoryUtils.unwrapMonitors(monitoringListeners);
 
-        if ((eventCharacteristics & Constants.CHARACTERISTIC_MONITOR_AWARE) != 0) {
+        if (Constants.isMonitorAware(eventCharacteristics)) {
             if (!MutableEvent.class.isAssignableFrom(eventType))
                 throw new UnsupportedOperationException("This version of EventBus only supports " +
                         "EventCharacteristics.MonitorAware on MutableEvent");

@@ -103,7 +103,7 @@ public record BusGroupImpl(
 
         var backingList = new ArrayList<EventListener>();
         List<EventBus<?>> parents = Collections.emptyList();
-        if ((characteristics & Constants.CHARACTERISTIC_INHERITABLE) != 0) {
+        if (Constants.isInheritable(characteristics)) {
             parents = getParentEvents(eventType);
             for (var parent : parents) {
                 backingList.addAll(((AbstractEventBusImpl<?, ?>) parent).backingList());
@@ -111,11 +111,11 @@ public record BusGroupImpl(
         }
 
         @SuppressWarnings("rawtypes")
-        var bus = (characteristics & Constants.CHARACTERISTIC_CANCELLABLE) != 0
+        var bus = Constants.isCancellable(characteristics)
                 ? new CancellableEventBusImpl<>(this.name, (Class) (Class<? extends Cancellable>) eventType, backingList, characteristics)
                 : new EventBusImpl<>(this.name, eventType, backingList, characteristics);
 
-        if ((characteristics & Constants.CHARACTERISTIC_INHERITABLE) != 0) {
+        if (Constants.isInheritable(characteristics)) {
             for (var parent : parents) {
                 ((AbstractEventBusImpl<?, ?>) parent).children().add(bus);
             }

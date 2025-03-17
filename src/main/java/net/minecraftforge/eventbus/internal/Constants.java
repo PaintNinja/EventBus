@@ -63,4 +63,24 @@ final class Constants {
     static <T> Predicate<T> getNoOpPredicate() {
         return (Predicate<T>) NO_OP_PREDICATE;
     }
+
+    static boolean isSelfDestructing(int characteristics) {
+        return (characteristics & CHARACTERISTIC_SELF_DESTRUCTING) != 0;
+    }
+
+    static boolean isMonitorAware(int characteristics) {
+        return (characteristics & CHARACTERISTIC_MONITOR_AWARE) != 0;
+    }
+
+    static boolean isCancellable(int characteristics) {
+        return (characteristics & CHARACTERISTIC_CANCELLABLE) != 0;
+    }
+
+    static boolean isInheritable(int characteristics) {
+        return (characteristics & CHARACTERISTIC_INHERITABLE) != 0;
+    }
+
+    static boolean notInheritable(int characteristics) {
+        return (characteristics & CHARACTERISTIC_INHERITABLE) == 0;
+    }
 }

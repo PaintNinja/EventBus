@@ -136,7 +136,7 @@ public record CancellableEventBusImpl<T extends Event & Cancellable>(
         synchronized (backingList) {
             backingList.sort(PRIORITY_COMPARATOR);
 
-            if ((eventCharacteristics() & CHARACTERISTIC_SELF_DESTRUCTING) != 0)
+            if (Constants.isSelfDestructing(eventCharacteristics()))
                 monitorBackingSet.add(new EventListenerImpl.MonitoringListener(eventType, (event, wasCancelled) -> dispose()));
 
             Predicate<T> invoker = setInvoker(InvokerFactory.createCancellableMonitoringInvoker(

@@ -50,7 +50,7 @@ public sealed interface AbstractEventBusImpl<T extends Event, I> extends EventBu
      * Creates a pre-sized list for possible children of this event.
      */
     static List<AbstractEventBusImpl<?, ?>> makeEventChildrenList(Class<?> eventType, int eventCharacteristics) {
-        if ((eventCharacteristics & Constants.CHARACTERISTIC_INHERITABLE) == 0 || Modifier.isFinal(eventType.getModifiers()))
+        if (Constants.notInheritable(eventCharacteristics) || Modifier.isFinal(eventType.getModifiers()))
             return Collections.emptyList(); // If the event isn't inheritable, don't factor in any children
 
         // If it's inheritable and sealed, we can pre-size the list based on the number of permitted subclasses

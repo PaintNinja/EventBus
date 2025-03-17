@@ -101,7 +101,7 @@ public record EventBusImpl<T extends Event>(
                     eventType, eventCharacteristics, backingList, monitorBackingSet
             );
 
-            if ((eventCharacteristics & CHARACTERISTIC_SELF_DESTRUCTING) != 0)
+            if (Constants.isSelfDestructing(eventCharacteristics))
                 invoker = invoker.andThen(event -> dispose());
 
             setInvoker(invoker);
