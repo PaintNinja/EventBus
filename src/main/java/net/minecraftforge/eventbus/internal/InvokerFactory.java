@@ -74,11 +74,13 @@ final class InvokerFactory {
                     mutableEvent.isMonitoring = false;
                 };
             } else {
+                @SuppressWarnings("unchecked")
+                ObjBooleanBiConsumer<T>[] unwrappedMonitorsArray = unwrappedMonitors.toArray(new ObjBooleanBiConsumer[0]);
                 return event -> {
                     invoker.accept(event);
                     var mutableEvent = (MutableEventInternals) event;
                     mutableEvent.isMonitoring = true;
-                    for (var monitor : unwrappedMonitors) {
+                    for (var monitor : unwrappedMonitorsArray) {
                         monitor.accept(event, false);
                     }
                     mutableEvent.isMonitoring = false;
@@ -94,9 +96,11 @@ final class InvokerFactory {
                 firstMonitor.accept(event, false);
             };
         } else {
+            @SuppressWarnings("unchecked")
+            ObjBooleanBiConsumer<T>[] unwrappedMonitorsArray = unwrappedMonitors.toArray(new ObjBooleanBiConsumer[0]);
             return event -> {
                 invoker.accept(event);
-                for (var monitor : unwrappedMonitors) {
+                for (var monitor : unwrappedMonitorsArray) {
                     monitor.accept(event, false);
                 }
             };
@@ -135,11 +139,13 @@ final class InvokerFactory {
                     return cancelled;
                 };
             } else {
+                @SuppressWarnings("unchecked")
+                ObjBooleanBiConsumer<T>[] unwrappedMonitorsArray = unwrappedMonitors.toArray(new ObjBooleanBiConsumer[0]);
                 return event -> {
                     boolean cancelled = cancellableInvoker.test(event);
                     var mutableEvent = (MutableEventInternals) event;
                     mutableEvent.isMonitoring = true;
-                    for (var monitor : unwrappedMonitors) {
+                    for (var monitor : unwrappedMonitorsArray) {
                         monitor.accept(event, cancelled);
                     }
                     mutableEvent.isMonitoring = false;
@@ -157,9 +163,11 @@ final class InvokerFactory {
                 return cancelled;
             };
         } else {
+            @SuppressWarnings("unchecked")
+            ObjBooleanBiConsumer<T>[] unwrappedMonitorsArray = unwrappedMonitors.toArray(new ObjBooleanBiConsumer[0]);
             return event -> {
                 boolean cancelled = cancellableInvoker.test(event);
-                for (var monitor : unwrappedMonitors) {
+                for (var monitor : unwrappedMonitorsArray) {
                     monitor.accept(event, cancelled);
                 }
                 return cancelled;
