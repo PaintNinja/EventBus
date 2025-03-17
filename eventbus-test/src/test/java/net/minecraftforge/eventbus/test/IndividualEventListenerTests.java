@@ -206,6 +206,7 @@ public class IndividualEventListenerTests {
         });
 
         Assertions.assertFalse(firstWasCalled.get(), "Listener should not have been called yet");
+        Assertions.assertFalse(secondWasCalled.get(), "New listener should not have been called yet");
         RegistrationTestEvent.BUS.post(new RegistrationTestEvent());
         Assertions.assertTrue(firstWasCalled.get(), "Listener should have been called");
 
