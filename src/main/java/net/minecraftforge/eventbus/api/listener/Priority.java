@@ -38,7 +38,10 @@ public final class Priority {
 
     /**
      * A special priority that is only used for monitoring purposes and typically doesn't allow cancelling or mutation.
-     * <p>Monitoring listeners are always called last - even if the event is cancelled.</p>
+     * <ul>
+     *     <li>Monitoring listeners are always called last - even if the event is cancelled.</li>
+     *     <li>The order in which monitoring listeners are called cannot be guaranteed.</li>
+     * </ul>
      */
     public static final byte MONITOR = Byte.MIN_VALUE;
 }
