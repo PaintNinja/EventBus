@@ -4,11 +4,13 @@ import net.minecraftforge.eventbus.api.bus.CancellableEventBus;
 import net.minecraftforge.eventbus.api.bus.EventBus;
 import net.minecraftforge.eventbus.api.event.RecordEvent;
 import net.minecraftforge.eventbus.api.event.characteristic.Cancellable;
+import net.minecraftforge.eventbus.api.event.characteristic.SelfPosting;
 import net.minecraftforge.eventbus.api.listener.EventListener;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class IndividualEventListenerTests {
@@ -208,5 +210,52 @@ public class IndividualEventListenerTests {
 
         RegistrationTestEvent.BUS.removeListener(firstListener);
         RegistrationTestEvent.BUS.removeListener(secondListenerRef.get());
+    }
+
+    /**
+     * Tests that listeners are capable of recursively posting events.
+     */
+    @Test
+    public void testRecursiveEventPosting() {
+        record RecursiveTestEvent(boolean inside) implements RecordEvent, SelfPosting<RecursiveTestEvent> {
+            static final EventBus<RecursiveTestEvent> BUS = EventBus.create(RecursiveTestEvent.class);
+
+            @Override
+            public EventBus<RecursiveTestEvent> getDefaultBus() {
+                return BUS;
+            }
+        }
+
+        var hits = new AtomicInteger();
+        var listener = RecursiveTestEvent.BUS.addListener(event -> {
+            if (!event.inside)
+                new RecursiveTestEvent(true).post();
+
+            hits.incrementAndGet();
+        });
+
+        Assertions.assertEquals(0, hits.get(), "Listener should not have been called yet");
+        new RecursiveTestEvent(false).post();
+        Assertions.assertEquals(2, hits.get(), "Listener should have been called twice");
+
+        RecursiveTestEvent.BUS.removeListener(listener);
+
+        hits.set(0);
+        var listenerRef = new AtomicReference<EventListener>();
+        listener = RecursiveTestEvent.BUS.addListener(event -> {
+            if (!event.inside) {
+                RecursiveTestEvent.BUS.removeListener(listenerRef.get());
+                new RecursiveTestEvent(true).post();
+            } else {
+                Assertions.fail();
+            }
+
+            hits.incrementAndGet();
+        });
+        listenerRef.set(listener);
+
+        Assertions.assertEquals(0, hits.get(), "Listener should not have been called yet");
+        new RecursiveTestEvent(false).post();
+        Assertions.assertEquals(1, hits.get(), "Listener should have been called once");
     }
 }
