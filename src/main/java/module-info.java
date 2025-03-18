@@ -15,4 +15,5 @@ module net.minecraftforge.eventbus {
     exports net.minecraftforge.eventbus.api.listener;
 
     exports net.minecraftforge.eventbus.internal to net.minecraftforge.eventbus.test;
+    opens net.minecraftforge.eventbus.internal to net.minecraftforge.eventbus.test;
 }
