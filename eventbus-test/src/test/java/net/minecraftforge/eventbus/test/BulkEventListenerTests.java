@@ -12,9 +12,12 @@ import net.minecraftforge.eventbus.api.event.characteristic.Cancellable;
 import net.minecraftforge.eventbus.api.listener.EventListener;
 import net.minecraftforge.eventbus.api.listener.Priority;
 import net.minecraftforge.eventbus.api.listener.SubscribeEvent;
+import net.minecraftforge.eventbus.internal.BusGroupImpl;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -27,6 +30,29 @@ public class BulkEventListenerTests {
 
     public record CancellableTestEvent() implements Cancellable, RecordEvent {
         static final CancellableEventBus<CancellableTestEvent> BUS = CancellableEventBus.create(CancellableTestEvent.class);
+    }
+
+    private static final MethodHandle REGISTER_STRICT_METHOD;
+    static {
+        try {
+            var clazz = Class.forName("net.minecraftforge.eventbus.internal.EventListenerFactory");
+            var method = clazz.getDeclaredMethod("registerStrict", BusGroupImpl.class, MethodHandles.Lookup.class, Class.class, Object.class);
+            method.setAccessible(true);
+            REGISTER_STRICT_METHOD = MethodHandles.lookup().unreflect(method);
+        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    private static void registerStrict(MethodHandles.Lookup callerLookup, Class<?> listenerClass, @Nullable Object instance) {
+        try {
+            REGISTER_STRICT_METHOD.invoke((BusGroupImpl) BusGroup.DEFAULT, callerLookup, listenerClass, instance);
+        } catch (Throwable e) {
+            sneak(e);
+        }
+    }
+    @SuppressWarnings("unchecked")
+    private static <E extends Throwable> void sneak(Throwable e) throws E {
+        throw (E) e;
     }
 
     public static class StaticListeners {
@@ -364,6 +390,285 @@ public class BulkEventListenerTests {
                 Exception.class,
                 () -> BusGroup.DEFAULT.register(MethodHandles.publicLookup(), new EncapsulatedListeners()),
                 "Private listeners should not be accessible with a public lookup"
+        );
+    }
+
+    /**
+     * Tests that strict bulk registration on a class with no methods throws an exception.
+     */
+    @Test
+    public void testStrictBulkRegistrationValidationNoMethods() {
+        final class NoMethods {}
+
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> registerStrict(MethodHandles.lookup(), NoMethods.class, null),
+                "Attempting to bulk register a class with no methods should throw an exception"
+        );
+
+        final class NoListenerMethods {
+            static void utilityMethod(int x, int y) {}
+        }
+
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> registerStrict(MethodHandles.lookup(), NoListenerMethods.class, null),
+                "Attempting to bulk register a class with no listener methods should throw an exception"
+        );
+    }
+
+    /**
+     * Tests that strict bulk registration on a class with instance event listener methods without an instance throws an exception.
+     */
+    @Test
+    public void testStrictBulkRegistrationValidationInstanceMethodsWithoutInstance() {
+        final class InstanceMethods {
+            @SubscribeEvent
+            void instanceMethod(TestEvent event) {}
+
+            @SubscribeEvent
+            static void staticMethod(TestEvent event) {}
+        }
+
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> registerStrict(MethodHandles.lookup(), InstanceMethods.class, null),
+                "Attempting to bulk register a class with instance methods without an instance should throw an exception"
+        );
+    }
+
+    /**
+     * Tests that strict bulk registration on a class with event listener methods missing the @SubscribeEvent annotation throws an exception.
+     */
+    @Test
+    public void testStrictBulkRegistrationValidationMissingSubscribeEvent() {
+        final class MissingSubscribeEvent {
+            void noAnnotation(TestEvent event) {}
+            static void noAnnotationStatic(TestEvent event) {}
+        }
+
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> registerStrict(MethodHandles.lookup(), MissingSubscribeEvent.class, new MissingSubscribeEvent()),
+                "Attempting to bulk register a class containing event handlers without the @SubscribeEvent annotation should throw an exception"
+        );
+    }
+
+    /**
+     * Tests that strict bulk registration on a class with event listener methods with the wrong parameter type throws an exception.
+     */
+    @Test
+    public void testStrictBulkRegistrationValidationWrongParameterType() {
+        final class WrongParameterType {
+            @SubscribeEvent
+            void wrongParameterType(boolean notAnEvent) {}
+
+            @SubscribeEvent
+            static void wrongParameterTypeStatic(boolean notAnEvent) {}
+        }
+
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> registerStrict(MethodHandles.lookup(), WrongParameterType.class, new WrongParameterType()),
+                "Attempting to bulk register a class containing @SubscribeEvent with the wrong parameter type should throw an exception"
+        );
+    }
+
+    /**
+     * Tests that strict bulk registration on a class with event listener methods with the wrong parameter count throws an exception.
+     */
+    @Test
+    public void testStrictBulkRegistrationValidationWrongParameterCount() {
+        final class ZeroParameters {
+            @SubscribeEvent
+            void wrongParameterCount() {}
+
+            @SubscribeEvent
+            static void wrongParameterCountStatic() {}
+        }
+
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> registerStrict(MethodHandles.lookup(), ZeroParameters.class, new ZeroParameters()),
+                "Attempting to bulk register a class containing @SubscribeEvent with zero parameters should throw an exception"
+        );
+
+        final class TooManyParameters {
+            @SubscribeEvent
+            void wrongParameterCount(TestEvent event, int a, int b) {}
+
+            @SubscribeEvent
+            static void wrongParameterCountStatic(TestEvent event, int a, int b) {}
+        }
+
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> registerStrict(MethodHandles.lookup(), TooManyParameters.class, new TooManyParameters()),
+                "Attempting to bulk register a class containing @SubscribeEvent with too many parameters should throw an exception"
+        );
+    }
+
+    /**
+     * Tests that strict bulk registration on a class with event listener methods with the wrong return type throws an exception.
+     */
+    @Test
+    public void testStrictBulkRegistrationValidationWrongReturnType() {
+        final class WrongReturnType {
+            @SubscribeEvent
+            int wrongReturnType(TestEvent event) {
+                return 0;
+            }
+
+            @SubscribeEvent
+            static String wrongReturnTypeStatic(TestEvent event) {
+                return "";
+            }
+        }
+
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> registerStrict(MethodHandles.lookup(), WrongReturnType.class, new WrongReturnType()),
+                "Attempting to bulk register a class containing @SubscribeEvent with the wrong return type should throw an exception"
+        );
+    }
+
+    /**
+     * Tests that strict bulk registration on a class with event listener methods with the wrong return type throws an exception.
+     */
+    @Test
+    public void testStrictBulkRegistrationValidationWrongReturnTypeCancellable() {
+        final class WrongReturnTypeCancellable {
+            @SubscribeEvent
+            boolean wrongReturnType(TestEvent event) {
+                return false;
+            }
+
+            @SubscribeEvent
+            static boolean wrongReturnTypeStatic(TestEvent event) {
+                return false;
+            }
+        }
+
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> registerStrict(MethodHandles.lookup(), WrongReturnTypeCancellable.class, new WrongReturnTypeCancellable()),
+                "Attempting to bulk register a class containing a possibly cancelling listener on a non-cancellable event should throw an exception"
+        );
+
+        final class WrongReturnTypeAlwaysCancelling {
+            @SubscribeEvent(alwaysCancelling = true)
+            boolean wrongReturnType(CancellableTestEvent event) {
+                return false;
+            }
+
+            @SubscribeEvent(alwaysCancelling = true)
+            static boolean wrongReturnTypeStatic(CancellableTestEvent event) {
+                return false;
+            }
+        }
+
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> registerStrict(MethodHandles.lookup(), WrongReturnTypeAlwaysCancelling.class, new WrongReturnTypeAlwaysCancelling()),
+                "Attempting to bulk register a class containing a always cancelling listener with a non-void return type should throw an exception"
+        );
+    }
+
+    /**
+     * Tests that strict bulk registration on a class with monitoring event listener methods with the wrong return type throws an exception.
+     */
+    @Test
+    public void testStrictBulkRegistrationValidationWrongReturnTypeMonitoring() {
+        final class PossiblyCancellingMonitorListeners {
+            @SubscribeEvent(priority = Priority.MONITOR)
+            boolean possiblyCancellingMonitor(CancellableTestEvent event) {
+                return false;
+            }
+
+            @SubscribeEvent(priority = Priority.MONITOR)
+            static boolean wrongReturnTypeStatic(CancellableTestEvent event) {
+                return false;
+            }
+        }
+
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> registerStrict(MethodHandles.lookup(), PossiblyCancellingMonitorListeners.class, new PossiblyCancellingMonitorListeners()),
+                "Attempting to bulk register a class containing a possibly cancelling monitoring listener should throw an exception"
+        );
+
+        final class AlwaysCancellingMonitoringListeners {
+            @SubscribeEvent(alwaysCancelling = true, priority = Priority.MONITOR)
+            void alwaysCancellingMonitor(CancellableTestEvent event) {}
+
+            @SubscribeEvent(alwaysCancelling = true, priority = Priority.MONITOR)
+            static void alwaysCancellingMonitorStatic(CancellableTestEvent event) {}
+        }
+
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> registerStrict(MethodHandles.lookup(), AlwaysCancellingMonitoringListeners.class, new AlwaysCancellingMonitoringListeners()),
+                "Attempting to bulk register a class containing an always cancelling monitoring listener should throw an exception"
+        );
+    }
+
+    /**
+     * Tests that strict bulk registration on a class with monitoring event listener methods with the wrong parameter type throws an exception.
+     */
+    @Test
+    public void testStrictBulkRegistrationValidationWrongParamTypeMonitoring() {
+        final class WrongParamTypeCancelAwareMonitoring {
+            @SubscribeEvent(priority = Priority.MONITOR)
+            void wrongParamType(CancellableTestEvent event, int wrong) {}
+
+            @SubscribeEvent(priority = Priority.MONITOR)
+            static void wrongParamTypeStatic(CancellableTestEvent event, String wrong) {}
+        }
+
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> registerStrict(MethodHandles.lookup(), WrongParamTypeCancelAwareMonitoring.class, new WrongParamTypeCancelAwareMonitoring()),
+                "Attempting to bulk register a class containing a cancellation-aware monitoring listener with the wrong parameter type should throw an exception"
+        );
+    }
+
+    /**
+     * Tests that strict bulk registration on a class with cancellation-aware monitoring event listener methods on non-cancellable events throws an exception.
+     */
+    @Test
+    public void testStrictBulkRegistrationValidationWrongParamCountMonitoring() {
+        final class WrongParamCountMonitoring {
+            @SubscribeEvent(priority = Priority.MONITOR)
+            void wrongParamCount(TestEvent event, boolean wrong) {}
+
+            @SubscribeEvent(priority = Priority.MONITOR)
+            static void wrongParamCountStatic(TestEvent event, boolean wrong) {}
+        }
+
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> registerStrict(MethodHandles.lookup(), WrongParamCountMonitoring.class, new WrongParamCountMonitoring()),
+                "Attempting to bulk register a class containing a cancellation-aware monitoring listener for a non-cancellable event should throw an exception"
+        );
+    }
+
+    /**
+     * Tests that strict bulk registeration on a class with a non-monitoring priority on a cancellation-aware monitoring event listener method throws an exception.
+     */
+    @Test
+    public void testStrictBulkRegistrationValidationWrongPriorityMonitoring() {
+        final class WrongPriorityMonitoring {
+            @SubscribeEvent(priority = Priority.HIGHEST)
+            void wrongPriority(CancellableTestEvent event, boolean wasCancelled) {}
+
+            @SubscribeEvent(priority = Priority.LOWEST)
+            static void wrongPriorityStatic(CancellableTestEvent event, boolean wasCancelled) {}
+        }
+
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> registerStrict(MethodHandles.lookup(), WrongPriorityMonitoring.class, new WrongPriorityMonitoring()),
+                "Attempting to bulk register a class containing a cancellation-aware monitoring listener with a non-monitoring priority should throw an exception"
         );
     }
 }
