@@ -152,6 +152,9 @@ final class EventListenerFactory {
 
                     if (!boolean.class.isAssignableFrom(parameterTypes[1]))
                         throw fail(method, "Second parameter of a cancellation-aware monitoring listener must be a boolean");
+
+                    if (subscribeEventAnnotation.priority() != Priority.MONITOR)
+                        throw fail(method, "Cancellation-aware monitoring listeners must have a priority of MONITOR");
                 }
 
                 if (!firstParamExtendsCancellable) {
