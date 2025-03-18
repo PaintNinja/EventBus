@@ -14,6 +14,10 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface SubscribeEvent {
+    /**
+     * The priority of this listener. Listeners with higher priority numbers are called first.
+     * @see Priority
+     */
     byte priority() default Priority.NORMAL;
 
     /**

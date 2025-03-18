@@ -60,13 +60,34 @@ public sealed interface CancellableEventBus<T extends Event & Cancellable>
      */
     EventListener addListener(byte priority, Predicate<T> listener);
 
+    /**
+     * Adds a cancellation-aware monitoring listener to this EventBus.
+     * @param listener The listener to add.
+     * @return A reference that can be used to remove this listener later with {@link #removeListener(EventListener)}.
+     */
     EventListener addListener(ObjBooleanBiConsumer<T> listener);
 
+    /**
+     * Creates a new CancellableEventBus for the given event type on the default {@link BusGroup}.
+     * <p>
+     *     <b>Important:</b> The returned EventBus MUST be stored in a {@code static final} field - failing to do so
+     *     will severely hurt performance
+     * </p>
+     * @apiNote There can only be one EventBus instance per event type per BusGroup.
+     */
     @SuppressWarnings("ClassEscapesDefinedScope") // E can be a subtype of Event which is publicly accessible
     static <T extends Event & Cancellable> CancellableEventBus<T> create(Class<T> eventType) {
         return create(BusGroup.DEFAULT, eventType);
     }
 
+    /**
+     * Creates a new CancellableEventBus for the given event type on the given {@link BusGroup}.
+     * <p>
+     *     <b>Important:</b> The returned EventBus MUST be stored in a {@code static final} field - failing to do so
+     *     will severely hurt performance
+     * </p>
+     * @apiNote There can only be one EventBus instance per event type per BusGroup.
+     */
     @SuppressWarnings("ClassEscapesDefinedScope") // E can be a subtype of Event which is publicly accessible
     static <T extends Event & Cancellable> CancellableEventBus<T> create(BusGroup busGroup, Class<T> eventType) {
         return (CancellableEventBus<T>) ((BusGroupImpl) busGroup).getOrCreateEventBus(eventType);

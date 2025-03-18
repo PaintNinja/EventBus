@@ -5,7 +5,11 @@
 package net.minecraftforge.eventbus.internal;
 
 import net.minecraftforge.eventbus.api.event.MutableEvent;
+import net.minecraftforge.eventbus.api.event.characteristic.MonitorAware;
 
 public sealed abstract class MutableEventInternals permits MutableEvent {
+    /**
+     * @see MonitorAware
+     */
     public transient boolean isMonitoring;
 }

@@ -6,4 +6,7 @@ package net.minecraftforge.eventbus.api.event;
 
 import net.minecraftforge.eventbus.internal.Event;
 
+/**
+ * For read-only or shallowly-immutable records.
+ */
 public non-sealed interface RecordEvent extends Event {}
