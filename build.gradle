@@ -6,7 +6,7 @@ plugins {
     id 'java-library'
     id 'maven-publish'
     id 'org.gradlex.extra-java-module-info' version '1.11'
-    id 'net.minecraftforge.gradleutils' version '2.4.12'
+    id 'net.minecraftforge.gradleutils' version '2.4.13'
     id 'net.minecraftforge.licenser' version '1.1.1'
 
     // Enforce jSpecify annotations at compile-time
@@ -88,7 +88,6 @@ publishing {
         pom {
             name = 'EventBus'
             description = 'High performance Event Bus library'
-            url = 'https://github.com/MinecraftForge/EventBus'
 
             gradleutils.pom.gitHubDetails = pom
 
