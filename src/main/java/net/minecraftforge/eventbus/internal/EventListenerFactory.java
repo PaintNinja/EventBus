@@ -36,7 +36,7 @@ final class EventListenerFactory {
     /** The method type of the {@link ObjBooleanBiConsumer} functional interface ({@code void accept(Object, boolean)}) */
     private static final MethodType MONITOR_FI_TYPE = MethodType.methodType(void.class, Object.class, boolean.class);
 
-    private static final Map<Method, MethodHandle> LMF_CACHE = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<Method, MethodHandle> LMF_CACHE = new ConcurrentHashMap<>();
 
     public static Collection<EventListener> register(BusGroupImpl busGroup, MethodHandles.Lookup callerLookup,
                                                      Class<?> listenerClass, @Nullable Object listenerInstance) {
@@ -240,7 +240,7 @@ final class EventListenerFactory {
     }
 
     private static IllegalArgumentException fail(Method mtd, String reason) {
-        return new IllegalArgumentException("Failed to register " + mtd.getDeclaringClass().getName() + "." + mtd.getName() + ": " + reason);
+        return new IllegalArgumentException("Failed to register " + mtd.getDeclaringClass().getName() + '.' + mtd.getName() + ": " + reason);
     }
 
     @SuppressWarnings("unchecked")
