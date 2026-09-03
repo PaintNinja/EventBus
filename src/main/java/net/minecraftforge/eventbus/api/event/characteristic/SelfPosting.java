@@ -34,8 +34,6 @@ import net.minecraftforge.eventbus.internal.EventCharacteristic;
  * // instead of this
  * ExampleEvent.BUS.post(new ExampleEvent());
  *}
- *
- * @apiNote This is an experimental feature that may be removed, renamed or otherwise changed without notice.
  */
 public non-sealed interface SelfPosting<T extends Event> extends EventCharacteristic {
     /**

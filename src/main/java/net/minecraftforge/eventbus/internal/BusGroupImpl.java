@@ -27,7 +27,7 @@ public record BusGroupImpl(
     }
 
     public BusGroupImpl {
-        if (!BUS_GROUP_NAMES.add(Objects.requireNonNull(name)))
+        if (!BUS_GROUP_NAMES.add(name))
             throw new IllegalArgumentException("BusGroup name \"" + name + "\" is already in use");
     }
 

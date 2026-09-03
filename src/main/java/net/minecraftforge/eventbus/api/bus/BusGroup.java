@@ -84,8 +84,6 @@ public sealed interface BusGroup permits BusGroupImpl {
      *
      * <p>Warning: This is only intended to be called <b>once</b> after all listeners are registered - calling this
      * repeatedly may hurt performance.</p>
-     *
-     * @apiNote This is an experimental feature that may be removed, renamed or otherwise changed without notice.
      */
     void trim();
 
